@@ -1,20 +1,21 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local CoreGui = game:GetService("CoreGui")
 local VirtualUser = game:GetService("VirtualUser")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
-if CoreGui:FindFirstChild("RainbowZombieHub") then
-    CoreGui.RainbowZombieHub:Destroy()
+if PlayerGui:FindFirstChild("RainbowZombieHub") then
+    PlayerGui.RainbowZombieHub:Destroy()
 end
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "RainbowZombieHub"
-ScreenGui.Parent = CoreGui
+ScreenGui.Parent = PlayerGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.ResetOnSpawn = false
 
 local function ApplyRainbow(textObject)
     task.spawn(function()
@@ -35,7 +36,10 @@ ToggleButton.Text = "⚡"
 ToggleButton.TextSize = 22
 ToggleButton.Parent = ScreenGui
 ApplyRainbow(ToggleButton)
-Instance.new("UICorner", ToggleButton).CornerRadius = UDim.new(1, 0)
+
+local toggleCorner = Instance.new("UICorner")
+toggleCorner.CornerRadius = UDim.new(1, 0)
+toggleCorner.Parent = ToggleButton
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 280, 0, 360)
@@ -45,7 +49,10 @@ MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Parent = ScreenGui
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
+
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 8)
+mainCorner.Parent = MainFrame
 
 local menuVisible = true
 ToggleButton.MouseButton1Click:Connect(function()
@@ -100,7 +107,11 @@ local function CreateButton(name, callback)
     btn.TextSize = 13
     btn.Font = Enum.Font.SourceSansBold
     btn.Parent = Container
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 6)
+    btnCorner.Parent = btn
+
     ApplyRainbow(btn)
 
     local active = false
@@ -214,4 +225,3 @@ CreateButton("Anti-AFK (Treo Máy 24/7)", function(state)
         end
     end)
 end)
-q
