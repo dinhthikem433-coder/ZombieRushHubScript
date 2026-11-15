@@ -69,7 +69,7 @@ local ToggleButton = Instance.new("TextButton")
 ToggleButton.Size = UDim2.new(0, 45, 0, 45)
 ToggleButton.Position = UDim2.new(0, 20, 0, 20)
 ToggleButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-ToggleButton.Text = "⚡"
+ToggleButton.Text = "✨"
 ToggleButton.TextSize = 22
 ToggleButton.Parent = ScreenGui
 ApplyRainbow(ToggleButton)
@@ -170,7 +170,7 @@ CreateButton("Bug Tiền (Farm Kill Server)", function(state)
         while state and task.wait(0.2) do
             pcall(function()
                 for _, rem in ipairs(ReplicatedStorage:GetDescendants()) do
-                    if rem:IsA("RemoteEvent") and (rem.Name:lower():find("money") or rem.Name:lower():find("cash") or rem.Name:lower():find("reward") or rem.Name:lower():find("kill")) then
+                    if rem:IsA("RemoteEvent") and (rem.Name:lower():find("money") or rem.Name:lower():find("cash") or rem.Name:lower():find("reward") or rem.Name:lower():find("add")) then
                         rem:FireServer(999999)
                     end
                 end
@@ -192,7 +192,7 @@ CreateButton("Kill Aura (1000 Studs Quét Sạch)", function(state)
                         local mRoot = v:FindFirstChild("HumanoidRootPart")
                         if mRoot and (mRoot.Position - root.Position).Magnitude <= 1000 then
                             for _, rem in ipairs(ReplicatedStorage:GetDescendants()) do
-                                if rem:IsA("RemoteEvent") and (rem.Name:lower():find("hit") or rem.Name:lower():find("damage") or rem.Name:lower():find("attack")) then
+                                if rem:IsA("RemoteEvent") and (rem.Name:lower():find("hit") or rem.Name:lower():find("damage") or rem.Name:lower():find("attack") or rem.Name:lower():find("shot")) then
                                     rem:FireServer(v, 99999)
                                 end
                             end
@@ -205,61 +205,105 @@ CreateButton("Kill Aura (1000 Studs Quét Sạch)", function(state)
     end)
 end)
 
-CreateButton("Bất Tử (Tách Hitbox Chống Anti-Cheat)", function(state)
-    local partClone
-    pcall(function()
-        local char = LocalPlayer.Character
-        local root = char and char:FindFirstChild("HumanoidRootPart")
-        if root then
-            if state then
-                root.CFrame = root.CFrame + Vector3.new(0, -500, 0)
-            else
-                root.CFrame = root.CFrame + Vector3.new(0, 500, 0)
-            end
-        end
-    end)
-end)
-
-CreateButton("Cơ Chế Bay (Fly Gui V3 + Safe Hitbox)", function(state)
+CreateButton("Bất Tử (Tách Hitbox An Toàn)", function(state)
+    local originalPos
     task.spawn(function()
-        local bg, bv
-        local flying = state
-        while flying and state do
-            task.wait()
+        while state do
+            task.wait(0.1)
             pcall(function()
                 local char = LocalPlayer.Character
                 local root = char and char:FindFirstChild("HumanoidRootPart")
-                local hum = char and char:FindFirstChild("Humanoid")
-                if root and hum then
-                    hum.PlatformStand = true
-                    if not bv then
-                        bv = Instance.new("BodyVelocity")
-                        bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-                        bv.Velocity = Vector3.new(0, 0, 0)
-                        bv.Parent = root
-                    end
-                    if not bg then
-                        bg = Instance.new("BodyGyro")
-                        bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-                        bg.CFrame = Workspace.CurrentCamera.CFrame
-                        bg.Parent = root
-                    end
-                    bv.Velocity = Workspace.CurrentCamera.CFrame.LookVector * 60
-                    bg.CFrame = Workspace.CurrentCamera.CFrame
+                if root then
+                    if not originalPos then originalPos = root.Position end
+                    root.CFrame = CFrame.new(99999, 99999, 99999)
+                    root.Velocity = Vector3.new(0, 0, 0)
                 end
             end)
         end
         pcall(function()
             local char = LocalPlayer.Character
             local root = char and char:FindFirstChild("HumanoidRootPart")
-            local hum = char and char:FindFirstChild("Humanoid")
-            if root then
-                for _, v in ipairs(root:GetChildren()) do
-                    if v:IsA("BodyVelocity") or v:IsA("BodyGyro") then v:Destroy() end
-                end
+            if root and originalPos then
+                root.CFrame = CFrame.new(originalPos)
             end
-            if hum then hum.PlatformStand = false end
-        end)
+        end
+    end)
+end)
+
+CreateButton("Cơ Chế Bay (Fly V3 + Safe Hitbox)", function(state)
+    task.spawn(function()
+        local flying = state
+        local origCFrame
+        local camera = Workspace.CurrentCamera
+        local uis = UserInputService
+        local keys = {w = false, s = false, a = false, d = false, q = false, e = false}
+        
+        local connection1, connection2
+        
+        if flying then
+            pcall(function()
+                local char = LocalPlayer.Character
+                local root = char and char:FindFirstChild("HumanoidRootPart")
+                if root then
+                    origCFrame = root.CFrame
+                end
+            end)
+
+            connection1 = uis.InputBegan:Connect(function(input)
+                if input.KeyCode == Enum.KeyCode.W then keys.w = true end
+                if input.KeyCode == Enum.KeyCode.S then keys.s = true end
+                if input.KeyCode == Enum.KeyCode.A then keys.a = true end
+                if input.KeyCode == Enum.KeyCode.D then keys.d = true end
+                if input.KeyCode == Enum.KeyCode.Q then keys.q = true end
+                if input.KeyCode == Enum.KeyCode.E then keys.e = true end
+            end)
+
+            connection2 = uis.InputEnded:Connect(function(input)
+                if input.KeyCode == Enum.KeyCode.W then keys.w = false end
+                if input.KeyCode == Enum.KeyCode.S then keys.s = false end
+                if input.KeyCode == Enum.KeyCode.A then keys.a = false end
+                if input.KeyCode == Enum.KeyCode.D then keys.d = false end
+                if input.KeyCode == Enum.KeyCode.Q then keys.q = false end
+                if input.KeyCode == Enum.KeyCode.E then keys.e = false end
+            end)
+
+            while flying and state do
+                task.wait()
+                pcall(function()
+                    local char = LocalPlayer.Character
+                    local root = char and char:FindFirstChild("HumanoidRootPart")
+                    local hum = char and char:FindFirstChild("Humanoid")
+                    if root and hum then
+                        hum.PlatformStand = true
+                        root.CFrame = CFrame.new(99999, 99999, 99999)
+                        
+                        local moveDir = Vector3.new(0, 0, 0)
+                        local camCF = camera.CFrame
+                        if keys.w then moveDir = moveDir + camCF.LookVector end
+                        if keys.s then moveDir = moveDir - camCF.LookVector end
+                        if keys.a then moveDir = moveDir - camCF.RightVector end
+                        if keys.d then moveDir = moveDir + camCF.RightVector end
+                        if keys.q then moveDir = moveDir - Vector3.new(0, 1, 0) end
+                        if keys.e then moveDir = moveDir + Vector3.new(0, 1, 0) end
+                        
+                        camera.CFrame = camCF + (moveDir * 2)
+                    end
+                end)
+            end
+            
+            if connection1 then connection1:Disconnect() end
+            if connection2 then connection2:Disconnect() end
+            
+            pcall(function()
+                local char = LocalPlayer.Character
+                local root = char and char:FindFirstChild("HumanoidRootPart")
+                local hum = char and char:FindFirstChild("Humanoid")
+                if root and origCFrame then
+                    root.CFrame = origCFrame
+                end
+                if hum then hum.PlatformStand = false end
+            end)
+        end
     end)
 end)
 
@@ -271,8 +315,8 @@ CreateButton("Kéo Giãn Hitbox Zombie (1000 Studs)", function(state)
                     if v:FindFirstChild("Humanoid") and v ~= LocalPlayer.Character then
                         local mRoot = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head")
                         if mRoot then
-                            mRoot.Size = Vector3.new(15, 15, 15)
-                            mRoot.Transparency = 0.7
+                            mRoot.Size = Vector3.new(20, 20, 20)
+                            mRoot.Transparency = 0.6
                             mRoot.CanCollide = false
                         end
                     end
