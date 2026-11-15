@@ -28,6 +28,43 @@ local function ApplyRainbow(textObject)
     end)
 end
 
+local function ShowNotification(message)
+    task.spawn(function()
+        local notif = Instance.new("TextLabel")
+        notif.Size = UDim2.new(0, 320, 0, 40)
+        notif.Position = UDim2.new(0.5, -160, 0, 50)
+        notif.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+        notif.BackgroundTransparency = 0.3
+        notif.Text = message
+        notif.TextSize = 14
+        notif.Font = Enum.Font.SourceSansBold
+        notif.Parent = ScreenGui
+
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(0, 6)
+        corner.Parent = notif
+
+        ApplyRainbow(notif)
+
+        local tweenService = game:GetService("TweenService")
+        local info = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        
+        local tweenIn = tweenService:Create(notif, info, {Position = UDim2.new(0.5, -160, 0, 100)})
+        tweenIn:Play()
+        task.wait(2)
+
+        local tweenOut = tweenService:Create(notif, info, {Position = UDim2.new(0.5, -160, 0, 50), BackgroundTransparency = 1})
+        tweenOut:Play()
+        task.wait(0.5)
+        notif:Destroy()
+    end)
+end
+
+task.spawn(function()
+    task.wait(1)
+    ShowNotification("Script được tạo bởi Thành 2k13")
+end)
+
 local ToggleButton = Instance.new("TextButton")
 ToggleButton.Size = UDim2.new(0, 45, 0, 45)
 ToggleButton.Position = UDim2.new(0, 20, 0, 20)
@@ -119,8 +156,10 @@ local function CreateButton(name, callback)
         active = not active
         if active then
             btn.BackgroundColor3 = Color3.fromRGB(50, 100, 50)
+            ShowNotification("[✓] Đã bật: " .. name)
         else
             btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            ShowNotification("[✗] Đã tắt: " .. name)
         end
         callback(active)
     end)
