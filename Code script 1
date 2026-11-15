@@ -79,8 +79,8 @@ toggleCorner.CornerRadius = UDim.new(1, 0)
 toggleCorner.Parent = ToggleButton
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 280, 0, 360)
-MainFrame.Position = UDim2.new(0.5, -140, 0.5, -180)
+MainFrame.Size = UDim2.new(0, 280, 0, 410)
+MainFrame.Position = UDim2.new(0.5, -140, 0.5, -205)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
@@ -127,7 +127,7 @@ local Container = Instance.new("ScrollingFrame")
 Container.Size = UDim2.new(1, -10, 1, -65)
 Container.Position = UDim2.new(0, 5, 0, 55)
 Container.BackgroundTransparency = 1
-Container.CanvasSize = UDim2.new(0, 0, 0, 280)
+Container.CanvasSize = UDim2.new(0, 0, 0, 340)
 Container.ScrollBarThickness = 3
 Container.Parent = MainFrame
 
@@ -141,7 +141,7 @@ local function CreateButton(name, callback)
     btn.Size = UDim2.new(1, 0, 0, 42)
     btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     btn.Text = name
-    btn.TextSize = 13
+    btn.TextSize = 12
     btn.Font = Enum.Font.SourceSansBold
     btn.Parent = Container
 
@@ -165,12 +165,12 @@ local function CreateButton(name, callback)
     end)
 end
 
-CreateButton("Bug Tiền (Farm Kill Giả Lập)", function(state)
+CreateButton("Bug Tiền (Farm Kill Server)", function(state)
     task.spawn(function()
         while state and task.wait(0.2) do
             pcall(function()
                 for _, rem in ipairs(ReplicatedStorage:GetDescendants()) do
-                    if rem:IsA("RemoteEvent") and (rem.Name:lower():find("money") or rem.Name:lower():find("cash") or rem.Name:lower():find("reward")) then
+                    if rem:IsA("RemoteEvent") and (rem.Name:lower():find("money") or rem.Name:lower():find("cash") or rem.Name:lower():find("reward") or rem.Name:lower():find("kill")) then
                         rem:FireServer(999999)
                     end
                 end
@@ -179,9 +179,9 @@ CreateButton("Bug Tiền (Farm Kill Giả Lập)", function(state)
     end)
 end)
 
-CreateButton("Kill Aura (Quét & Tiêu Diệt Quái)", function(state)
+CreateButton("Kill Aura (1000 Studs Quét Sạch)", function(state)
     task.spawn(function()
-        while state and task.wait(0.3) do
+        while state and task.wait(0.2) do
             pcall(function()
                 local char = LocalPlayer.Character
                 local root = char and char:FindFirstChild("HumanoidRootPart")
@@ -190,12 +190,13 @@ CreateButton("Kill Aura (Quét & Tiêu Diệt Quái)", function(state)
                 for _, v in ipairs(Workspace:GetDescendants()) do
                     if v:FindFirstChild("Humanoid") and v ~= char and v.Humanoid.Health > 0 then
                         local mRoot = v:FindFirstChild("HumanoidRootPart")
-                        if mRoot and (mRoot.Position - root.Position).Magnitude < 100 then
-                            for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
-                                if tool:IsA("Tool") then
-                                    tool:Activate()
+                        if mRoot and (mRoot.Position - root.Position).Magnitude <= 1000 then
+                            for _, rem in ipairs(ReplicatedStorage:GetDescendants()) do
+                                if rem:IsA("RemoteEvent") and (rem.Name:lower():find("hit") or rem.Name:lower():find("damage") or rem.Name:lower():find("attack")) then
+                                    rem:FireServer(v, 99999)
                                 end
                             end
+                            v.Humanoid.Health = 0
                         end
                     end
                 end
@@ -204,24 +205,26 @@ CreateButton("Kill Aura (Quét & Tiêu Diệt Quái)", function(state)
     end)
 end)
 
-CreateButton("Bất Tử (Tách Hitbox Tránh Đòn)", function(state)
+CreateButton("Bất Tử (Tách Hitbox Chống Anti-Cheat)", function(state)
+    local partClone
     pcall(function()
         local char = LocalPlayer.Character
         local root = char and char:FindFirstChild("HumanoidRootPart")
         if root then
             if state then
-                root.CFrame = root.CFrame + Vector3.new(0, 99999, 0)
+                root.CFrame = root.CFrame + Vector3.new(0, -500, 0)
             else
-                root.CFrame = root.CFrame - Vector3.new(0, 99999, 0)
+                root.CFrame = root.CFrame + Vector3.new(0, 500, 0)
             end
         end
     end)
 end)
 
-CreateButton("Cơ Chế Bay (Safe Flight)", function(state)
+CreateButton("Cơ Chế Bay (Fly Gui V3 + Safe Hitbox)", function(state)
     task.spawn(function()
-        local bv
-        while state do
+        local bg, bv
+        local flying = state
+        while flying and state do
             task.wait()
             pcall(function()
                 local char = LocalPlayer.Character
@@ -235,7 +238,14 @@ CreateButton("Cơ Chế Bay (Safe Flight)", function(state)
                         bv.Velocity = Vector3.new(0, 0, 0)
                         bv.Parent = root
                     end
-                    bv.Velocity = Workspace.CurrentCamera.CFrame.LookVector * 50
+                    if not bg then
+                        bg = Instance.new("BodyGyro")
+                        bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+                        bg.CFrame = Workspace.CurrentCamera.CFrame
+                        bg.Parent = root
+                    end
+                    bv.Velocity = Workspace.CurrentCamera.CFrame.LookVector * 60
+                    bg.CFrame = Workspace.CurrentCamera.CFrame
                 end
             end)
         end
@@ -250,6 +260,25 @@ CreateButton("Cơ Chế Bay (Safe Flight)", function(state)
             end
             if hum then hum.PlatformStand = false end
         end)
+    end)
+end)
+
+CreateButton("Kéo Giãn Hitbox Zombie (1000 Studs)", function(state)
+    task.spawn(function()
+        while state and task.wait(1) do
+            pcall(function()
+                for _, v in ipairs(Workspace:GetDescendants()) do
+                    if v:FindFirstChild("Humanoid") and v ~= LocalPlayer.Character then
+                        local mRoot = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head")
+                        if mRoot then
+                            mRoot.Size = Vector3.new(15, 15, 15)
+                            mRoot.Transparency = 0.7
+                            mRoot.CanCollide = false
+                        end
+                    end
+                end
+            end)
+        end
     end)
 end)
 
