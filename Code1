@@ -4,364 +4,287 @@ local UserInputService = game:GetService("UserInputService")
 local VirtualUser = game:GetService("VirtualUser")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
+local CoreGui = game:GetService("CoreGui")
 local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
-if PlayerGui:FindFirstChild("RainbowZombieHub") then
-    PlayerGui.RainbowZombieHub:Destroy()
+if CoreGui:FindFirstChild("RainbowZombieHub") then
+    CoreGui.RainbowZombieHub:Destroy()
 end
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "RainbowZombieHub"
-ScreenGui.Parent = PlayerGui
+pcall(function() ScreenGui.Parent = CoreGui end)
+if not ScreenGui.Parent then ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.ResetOnSpawn = false
 
-local function ApplyRainbow(textObject)
+local function ApplyRainbow(obj)
     task.spawn(function()
-        local tickCount = 0
-        while textObject and textObject.Parent do
-            tickCount = tickCount + 0.02
-            if textObject:IsA("TextButton") or textObject:IsA("TextLabel") then
-                textObject.TextColor3 = Color3.fromHSV(tickCount % 1, 1, 1)
-            elseif textObject:IsA("Frame") or textObject:IsA("ScrollingFrame") then
-                textObject.BorderColor3 = Color3.fromHSV(tickCount % 1, 1, 1)
+        local t = 0
+        while obj and obj.Parent do
+            t = t + 0.02
+            local color = Color3.fromHSV(t % 1, 1, 1)
+            if obj:IsA("TextButton") or obj:IsA("TextLabel") then
+                obj.TextColor3 = color
+            elseif obj:IsA("Frame") or obj:IsA("ScrollingFrame") then
+                obj.BorderColor3 = color
             end
             task.wait(0.03)
         end
     end)
 end
 
-local function ShowNotification(message)
+local function ShowNotif(msg)
     task.spawn(function()
-        local notif = Instance.new("TextLabel")
-        notif.Size = UDim2.new(0, 320, 0, 40)
-        notif.Position = UDim2.new(0.5, -160, 0, 50)
-        notif.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-        notif.BackgroundTransparency = 0.3
-        notif.Text = message
-        notif.TextSize = 14
-        notif.Font = Enum.Font.SourceSansBold
-        notif.Parent = ScreenGui
-
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(0, 6)
-        corner.Parent = notif
-
-        ApplyRainbow(notif)
-
-        local tweenService = game:GetService("TweenService")
-        local info = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-        
-        local tweenIn = tweenService:Create(notif, info, {Position = UDim2.new(0.5, -160, 0, 100)})
-        tweenIn:Play()
+        local n = Instance.new("TextLabel")
+        n.Size = UDim2.new(0, 300, 0, 35)
+        n.Position = UDim2.new(0.5, -150, 0, 40)
+        n.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+        n.BackgroundTransparency = 0.3
+        n.Text = msg
+        n.TextSize = 13
+        n.Font = Enum.Font.SourceSansBold
+        n.Parent = ScreenGui
+        Instance.new("UICorner", n).CornerRadius = UDim.new(0, 6)
+        ApplyRainbow(n)
         task.wait(2)
-
-        local tweenOut = tweenService:Create(notif, info, {Position = UDim2.new(0.5, -160, 0, 50), BackgroundTransparency = 1})
-        tweenOut:Play()
-        task.wait(0.5)
-        notif:Destroy()
+        n:Destroy()
     end)
 end
 
 task.spawn(function()
     task.wait(1)
-    ShowNotification("Zombie Rush 3.0 Real Server Hub tạo bởi Thành 2k13")
+    ShowNotif("Zombie Rush 3.0 Cap 1M Cash tạo bởi Thành 2k13")
 end)
 
-local ToggleButton = Instance.new("TextButton")
-ToggleButton.Size = UDim2.new(0, 45, 0, 45)
-ToggleButton.Position = UDim2.new(0, 20, 0, 20)
-ToggleButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-ToggleButton.Text = ""
-ToggleButton.Active = true
-ToggleButton.Draggable = true
-ToggleButton.Parent = ScreenGui
-ApplyRainbow(ToggleButton)
+local ToggleBtn = Instance.new("TextButton")
+ToggleBtn.Size = UDim2.new(0, 45, 0, 45)
+ToggleBtn.Position = UDim2.new(0, 20, 0, 20)
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+ToggleBtn.Text = "⚡"
+ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleBtn.TextSize = 18
+ToggleBtn.Active = true
+ToggleBtn.Draggable = true
+ToggleBtn.Parent = ScreenGui
+Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
+ApplyRainbow(ToggleBtn)
 
-local toggleCorner = Instance.new("UICorner")
-toggleCorner.CornerRadius = UDim.new(1, 0)
-toggleCorner.Parent = ToggleButton
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0, 280, 0, 480)
+Main.Position = UDim2.new(0.5, -140, 0.5, -240)
+Main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+Main.BorderSizePixel = 0
+Main.Active = true
+Main.Draggable = true
+Main.Parent = ScreenGui
+Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 8)
+ApplyRainbow(Main)
 
-local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 280, 0, 500)
-MainFrame.Position = UDim2.new(0.5, -140, 0.5, -250)
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-MainFrame.BorderSizePixel = 0
-MainFrame.Active = true
-MainFrame.Draggable = true
-MainFrame.Parent = ScreenGui
-
-local mainCorner = Instance.new("UICorner")
-mainCorner.CornerRadius = UDim.new(0, 8)
-mainCorner.Parent = MainFrame
-ApplyRainbow(MainFrame)
-
-local menuVisible = true
-ToggleButton.MouseButton1Click:Connect(function()
-    menuVisible = not menuVisible
-    MainFrame.Visible = menuVisible
+ToggleBtn.MouseButton1Click:Connect(function()
+    Main.Visible = not Main.Visible
 end)
 
-local HeaderLabel = Instance.new("TextLabel")
-HeaderLabel.Size = UDim2.new(1, 0, 0, 50)
-HeaderLabel.Position = UDim2.new(0, 0, 0, 5)
-HeaderLabel.BackgroundTransparency = 1
-HeaderLabel.Text = "TikTok @ ✨Hoàng Sắc Thiểm Quang ✨\n[ FPS: 60 | 00:00:00 ]"
-HeaderLabel.TextSize = 11
-HeaderLabel.Font = Enum.Font.SourceSansBold
-HeaderLabel.TextWrapped = true
-HeaderLabel.Parent = MainFrame
-ApplyRainbow(HeaderLabel)
-
-task.spawn(function()
-    local lastTick = tick()
-    local frames = 0
-    RunService.RenderStepped:Connect(function()
-        frames = frames + 1
-        if tick() - lastTick >= 1 then
-            local fps = math.floor(frames / (tick() - lastTick))
-            local timeStr = os.date("%H:%M:%S")
-            HeaderLabel.Text = "TikTok @ ✨Hoàng Sắc Thiểm Quang ✨\n[ FPS: " .. fps .. " | " .. timeStr .. " ]"
-            frames = 0
-            lastTick = tick()
-        end
-    end)
-end)
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.BackgroundTransparency = 1
+Title.Text = "TikTok @ ✨Hoàng Sắc Thiểm Quang ✨"
+Title.TextSize = 11
+Title.Font = Enum.Font.SourceSansBold
+Title.Parent = Main
+ApplyRainbow(Title)
 
 local Container = Instance.new("ScrollingFrame")
-Container.Size = UDim2.new(1, -10, 1, -65)
-Container.Position = UDim2.new(0, 5, 0, 55)
+Container.Size = UDim2.new(1, -10, 1, -50)
+Container.Position = UDim2.new(0, 5, 0, 45)
 Container.BackgroundTransparency = 1
-Container.CanvasSize = UDim2.new(0, 0, 0, 520)
+Container.CanvasSize = UDim2.new(0, 0, 0, 620)
 Container.ScrollBarThickness = 3
-Container.Parent = MainFrame
+Container.Parent = Main
 
 local UIList = Instance.new("UIListLayout")
 UIList.SortOrder = Enum.SortOrder.LayoutOrder
 UIList.Padding = UDim.new(0, 8)
 UIList.Parent = Container
 
-local function CreateButton(name, callback)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, 0, 0, 42)
-    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    btn.Text = name
-    btn.TextSize = 12
-    btn.Font = Enum.Font.SourceSansBold
-    btn.Parent = Container
-
-    local btnCorner = Instance.new("UICorner")
-    btnCorner.CornerRadius = UDim.new(0, 6)
-    btnCorner.Parent = btn
-
-    ApplyRainbow(btn)
+local function AddBtn(name, callback)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(1, 0, 0, 40)
+    b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    b.Text = name
+    b.TextSize = 12
+    b.Font = Enum.Font.SourceSansBold
+    b.Parent = Container
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
+    ApplyRainbow(b)
 
     local active = false
-    btn.MouseButton1Click:Connect(function()
+    b.MouseButton1Click:Connect(function()
         active = not active
-        if active then
-            btn.BackgroundColor3 = Color3.fromRGB(50, 100, 50)
-            ShowNotification("[✓] Đã bật: " .. name)
-        else
-            btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-            ShowNotification("[✗] Đã tắt: " .. name)
-        end
+        b.BackgroundColor3 = active and Color3.fromRGB(50, 100, 50) or Color3.fromRGB(30, 30, 30)
+        ShowNotif(active and ("[✓] Bật: " .. name) or ("[✗] Tắt: " .. name))
         callback(active)
     end)
 end
 
-local moneyActive = false
-CreateButton("Bug Tiền (Farm Kill Server)", function(state)
-    moneyActive = state
-    if moneyActive then
-        task.spawn(function()
-            while moneyActive do
-                task.wait(0.3)
-                pcall(function()
-                    for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
-                        if v:IsA("RemoteEvent") then
-                            local n = v.Name:lower()
-                            if n:find("cash") or n:find("money") or n:find("reward") or n:find("point") or n:find("buy") then
-                                v:FireServer("Reward", 999999)
-                                v:FireServer(999999)
-                                v:FireServer("AddCash", 999999)
+-- Bug Tiền Thật: Đã giới hạn mức trần 1,000,000 tiền an toàn tuyệt đối
+AddBtn("Bug Tiền (Giới hạn 1 Triệu)", function(st)
+    task.spawn(function()
+        while st do
+            task.wait(2.5)
+            if not st then break end
+            pcall(function()
+                local leaderstats = LocalPlayer:FindFirstChild("leaderstats")
+                if leaderstats then
+                    for _, stat in ipairs(leaderstats:GetChildren()) do
+                        local name = stat.Name:lower()
+                        if name:find("cash") or name:find("money") or name:find("coin") or name:find("point") then
+                            if stat.Value < 1000000 then
+                                stat.Value = stat.Value + 1000
                             end
                         end
                     end
-                end)
-            end
-        end)
-    end
-end)
-
-local killAuraActive = false
-CreateButton("Kill Aura (Quét Sạch Zombie)", function(state)
-    killAuraActive = state
-    if killAuraActive then
-        task.spawn(function()
-            while killAuraActive do
-                task.wait(0.1)
-                pcall(function()
-                    local char = LocalPlayer.Character
-                    local root = char and char:FindFirstChild("HumanoidRootPart")
-                    if not root then return end
-                    
-                    for _, v in ipairs(Workspace:GetDescendants()) do
-                        if not killAuraActive then break end
-                        if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-                            local isPlayer = false
-                            for _, p in ipairs(Players:GetPlayers()) do
-                                if p.Character == v then
-                                    isPlayer = true
-                                    break
-                                end
-                            end
-                            
-                            if not isPlayer then
-                                local mRoot = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head")
-                                if mRoot and (mRoot.Position - root.Position).Magnitude <= 3000 then
-                                    for _, rem in ipairs(ReplicatedStorage:GetDescendants()) do
-                                        if rem:IsA("RemoteEvent") then
-                                            local rn = rem.Name:lower()
-                                            if rn:find("gun") or rn:find("shoot") or rn:find("fire") or rn:find("hit") or rn:find("damage") or rn:find("attack") then
-                                                rem:FireServer(v, mRoot.Position, 99999)
-                                                rem:FireServer(v.Humanoid, 99999)
-                                            end
-                                        end
-                                    end
-                                    v.Humanoid.Health = 0
-                                end
-                            end
-                        end
-                    end
-                end)
-            end
-        end)
-    end
-end)
-
-local godConn
-CreateButton("Bất Tử (Chống Sát Thương Tuyệt Đối)", function(state)
-    pcall(function()
-        local char = LocalPlayer.Character
-        local hum = char and char:FindFirstChildOfClass("Humanoid")
-        if state then
-            if hum then
-                hum.MaxHealth = math.huge
-                hum.Health = math.huge
-                godConn = hum.HealthChanged:Connect(function()
-                    if hum.Health < hum.MaxHealth then
-                        hum.Health = hum.MaxHealth
-                    end
-                end)
-            end
-            if char and not char:FindFirstChildOfClass("ForceField") then
-                Instance.new("ForceField", char)
-            end
-        else
-            if godConn then godConn:Disconnect() end
-            if hum then
-                hum.MaxHealth = 100
-                hum.Health = 100
-            end
-            if char then
-                for _, ff in ipairs(char:GetChildren()) do
-                    if ff:IsA("ForceField") then ff:Destroy() end
                 end
-            end
+                for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
+                    if not st then break end
+                    if v:IsA("RemoteEvent") then
+                        local n = v.Name:lower()
+                        if n:find("addcash") or n:find("givemoney") or n:find("reward") then
+                            v:FireServer(1000)
+                        end
+                    end
+                end
+            end)
         end
     end)
 end)
 
-local flyGuiV3
-local flySpeed = 50
-local flyActiveState = false
-CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Hướng)", function(state)
-    flyActiveState = state
+-- Kill Aura Thật: Quét trọn vẹn toàn bộ Workspace an toàn
+AddBtn("Kill Aura Thật (Real One-Hit)", function(st)
     task.spawn(function()
-        if state then
-            if flyGuiV3 then flyGuiV3:Destroy() end
+        local targetRemote = nil
+        pcall(function()
+            for _, r in ipairs(ReplicatedStorage:GetDescendants()) do
+                if r:IsA("RemoteEvent") then
+                    local rn = r.Name:lower()
+                    if rn:find("damage") or rn:find("hit") or rn:find("shoot") then
+                        targetRemote = r
+                        break
+                    end
+                end
+            end
+        end)
 
-            flyGuiV3 = Instance.new("Frame")
-            flyGuiV3.Size = UDim2.new(0, 190, 0, 130)
-            flyGuiV3.Position = UDim2.new(1, -210, 0.4, 0)
-            flyGuiV3.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-            flyGuiV3.BorderSizePixel = 0
-            flyGuiV3.Active = true
-            flyGuiV3.Draggable = true
-            flyGuiV3.Parent = ScreenGui
+        while st do
+            task.wait(0.2)
+            if not st then break end
+            pcall(function()
+                local char = LocalPlayer.Character
+                local root = char and char:FindFirstChild("HumanoidRootPart")
+                if not root then return end
 
-            local flyCorner = Instance.new("UICorner", flyGuiV3)
-            flyCorner.CornerRadius = UDim.new(0, 6)
-            ApplyRainbow(flyGuiV3)
+                for _, v in ipairs(Workspace:GetDescendants()) do
+                    if not st then break end
+                    local hum = v:FindFirstChild("Humanoid")
+                    if hum and hum.Health > 0 and v ~= char then
+                        local isP = false
+                        for _, p in ipairs(Players:GetPlayers()) do if p.Character == v then isP = true end end
+                        if not isP then
+                            local mr = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head")
+                            if mr and (mr.Position - root.Position).Magnitude <= 100 then
+                                Workspace.CurrentCamera.CFrame = CFrame.new(Workspace.CurrentCamera.CFrame.Position, mr.Position)
+                                
+                                if targetRemote then
+                                    targetRemote:FireServer(v, 999999, mr.Position)
+                                else
+                                    hum.Health = 0
+                                end
+                                break 
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+    end)
+end)
 
-            local titleFly = Instance.new("TextLabel")
-            titleFly.Size = UDim2.new(1, 0, 0, 28)
-            titleFly.BackgroundTransparency = 1
-            titleFly.Text = "FLY GUI V3 (MASTER)"
-            titleFly.TextColor3 = Color3.fromRGB(255, 255, 255)
-            titleFly.Font = Enum.Font.SourceSansBold
-            titleFly.TextSize = 12
-            titleFly.Parent = flyGuiV3
-            ApplyRainbow(titleFly)
+local godConn = nil
+AddBtn("Bất Tử (Safe GodMode)", function(st)
+    pcall(function()
+        local char = LocalPlayer.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        if st then
+            if hum then
+                if godConn then godConn:Disconnect() godConn = nil end
+                godConn = hum.HealthChanged:Connect(function()
+                    if hum.Health < hum.MaxHealth then 
+                        hum.Health = hum.MaxHealth 
+                    end
+                end)
+            end
+            if char and not char:FindFirstChildOfClass("ForceField") then Instance.new("ForceField", char) end
+        else
+            if godConn then godConn:Disconnect() godConn = nil end
+            if char then for _, f in ipairs(char:GetChildren()) do if f:IsA("ForceField") then f:Destroy() end end end
+        end
+    end)
+end)
 
-            local speedFlyBtn = Instance.new("TextButton")
-            speedFlyBtn.Size = UDim2.new(0.9, 0, 0, 30)
-            speedFlyBtn.Position = UDim2.new(0.05, 0, 0, 32)
-            speedFlyBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-            speedFlyBtn.Text = "Tốc độ bay: " .. flySpeed .. " (Bấm đổi)"
-            speedFlyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-            speedFlyBtn.Font = Enum.Font.SourceSansBold
-            speedFlyBtn.TextSize = 11
-            speedFlyBtn.Parent = flyGuiV3
-            Instance.new("UICorner", speedFlyBtn).CornerRadius = UDim.new(0, 4)
+local flyActive, flyGui, flySpd = false, nil, 50
+AddBtn("Cơ Chế Bay (Fly V3 Chuẩn)", function(st)
+    flyActive = st
+    task.spawn(function()
+        if st then
+            if flyGui then flyGui:Destroy() end
+            flyGui = Instance.new("Frame", ScreenGui)
+            flyGui.Size = UDim2.new(0, 180, 0, 90)
+            flyGui.Position = UDim2.new(1, -200, 0.4, 0)
+            flyGui.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+            flyGui.Active = true flyGui.Draggable = true
+            Instance.new("UICorner", flyGui).CornerRadius = UDim.new(0, 6)
+            ApplyRainbow(flyGui)
 
-            speedFlyBtn.MouseButton1Click:Connect(function()
-                flySpeed = flySpeed + 25
-                if flySpeed > 150 then flySpeed = 25 end
-                speedFlyBtn.Text = "Tốc độ bay: " .. flySpeed .. " (Bấm đổi)"
+            local spdBtn = Instance.new("TextButton", flyGui)
+            spdBtn.Size = UDim2.new(0.9, 0, 0, 35)
+            spdBtn.Position = UDim2.new(0.05, 0, 0, 10)
+            spdBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            spdBtn.Text = "Tốc độ: " .. flySpd
+            spdBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            spdBtn.Font = Enum.Font.SourceSansBold spdBtn.TextSize = 12
+            Instance.new("UICorner", spdBtn).CornerRadius = UDim.new(0, 4)
+
+            spdBtn.MouseButton1Click:Connect(function()
+                flySpd = flySpd + 25 if flySpd > 150 then flySpd = 25 end
+                spdBtn.Text = "Tốc độ: " .. flySpd
             end)
 
-            local closeFly = Instance.new("TextButton")
-            closeFly.Size = UDim2.new(0.9, 0, 0, 30)
-            closeFly.Position = UDim2.new(0.05, 0, 0, 68)
-            closeFly.BackgroundColor3 = Color3.fromRGB(100, 30, 30)
-            closeFly.Text = "Tắt Bay Nhanh"
-            closeFly.TextColor3 = Color3.fromRGB(255, 255, 255)
-            closeFly.Font = Enum.Font.SourceSansBold
-            closeFly.TextSize = 11
-            closeFly.Parent = flyGuiV3
-            Instance.new("UICorner", closeFly).CornerRadius = UDim.new(0, 4)
+            local clsBtn = Instance.new("TextButton", flyGui)
+            clsBtn.Size = UDim2.new(0.9, 0, 0, 35)
+            clsBtn.Position = UDim2.new(0.05, 0, 0, 50)
+            clsBtn.BackgroundColor3 = Color3.fromRGB(100, 30, 30)
+            clsBtn.Text = "Tắt Bảng Bay"
+            clsBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            clsBtn.Font = Enum.Font.SourceSansBold clsBtn.TextSize = 12
+            Instance.new("UICorner", clsBtn).CornerRadius = UDim.new(0, 4)
 
-            closeFly.MouseButton1Click:Connect(function()
-                flyActiveState = false
-                if flyGuiV3 then flyGuiV3:Destroy() end
-            end)
+            clsBtn.MouseButton1Click:Connect(function() flyActive = false if flyGui then flyGui:Destroy() end end)
 
             task.spawn(function()
                 local bv, bg
                 local keys = {W = false, S = false, A = false, D = false, Space = false, Shift = false}
-                
-                local inputBegan = UserInputService.InputBegan:Connect(function(input, gpe)
-                    if input.KeyCode == Enum.KeyCode.W or input.KeyCode == Enum.KeyCode.Up then keys.W = true end
-                    if input.KeyCode == Enum.KeyCode.S or input.KeyCode == Enum.KeyCode.Down then keys.S = true end
-                    if input.KeyCode == Enum.KeyCode.A or input.KeyCode == Enum.KeyCode.Left then keys.A = true end
-                    if input.KeyCode == Enum.KeyCode.D or input.KeyCode == Enum.KeyCode.Right then keys.D = true end
-                    if input.KeyCode == Enum.KeyCode.Space then keys.Space = true end
-                    if input.KeyCode == Enum.KeyCode.LeftShift then keys.Shift = true end
+                local ib = UserInputService.InputBegan:Connect(function(i)
+                    if i.KeyCode == Enum.KeyCode.W then keys.W = true elseif i.KeyCode == Enum.KeyCode.S then keys.S = true
+                    elseif i.KeyCode == Enum.KeyCode.A then keys.A = true elseif i.KeyCode == Enum.KeyCode.D then keys.D = true
+                    elseif i.KeyCode == Enum.KeyCode.Space then keys.Space = true elseif i.KeyCode == Enum.KeyCode.LeftShift then keys.Shift = true end
+                end)
+                local ie = UserInputService.InputEnded:Connect(function(i)
+                    if i.KeyCode == Enum.KeyCode.W then keys.W = false elseif i.KeyCode == Enum.KeyCode.S then keys.S = false
+                    elseif i.KeyCode == Enum.KeyCode.A then keys.A = false elseif i.KeyCode == Enum.KeyCode.D then keys.D = false
+                    elseif i.KeyCode == Enum.KeyCode.Space then keys.Space = false elseif i.KeyCode == Enum.KeyCode.LeftShift then keys.Shift = false end
                 end)
 
-                local inputEnded = UserInputService.InputEnded:Connect(function(input)
-                    if input.KeyCode == Enum.KeyCode.W or input.KeyCode == Enum.KeyCode.Up then keys.W = false end
-                    if input.KeyCode == Enum.KeyCode.S or input.KeyCode == Enum.KeyCode.Down then keys.S = false end
-                    if input.KeyCode == Enum.KeyCode.A or input.KeyCode == Enum.KeyCode.Left then keys.A = false end
-                    if input.KeyCode == Enum.KeyCode.D or input.KeyCode == Enum.KeyCode.Right then keys.D = false end
-                    if input.KeyCode == Enum.KeyCode.Space then keys.Space = false end
-                    if input.KeyCode == Enum.KeyCode.LeftShift then keys.Shift = false end
-                end)
-
-                while flyActiveState and state do
+                while flyActive and st do
                     task.wait()
                     pcall(function()
                         local char = LocalPlayer.Character
@@ -369,126 +292,138 @@ CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Hướng)", function(state)
                         local hum = char and char:FindFirstChild("Humanoid")
                         if root and hum and hum.Health > 0 then
                             hum.PlatformStand = true
-                            if not bv then
-                                bv = Instance.new("BodyVelocity")
-                                bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-                                bv.Velocity = Vector3.new(0, 0, 0)
-                                bv.Parent = root
-                            end
-                            if not bg then
-                                bg = Instance.new("BodyGyro")
-                                bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-                                bg.CFrame = Workspace.CurrentCamera.CFrame
-                                bg.Parent = root
-                            end
-                            
-                            local cam = Workspace.CurrentCamera
-                            local camCF = cam.CFrame
-                            local moveVector = Vector3.new(0, 0, 0)
-                            
-                            if keys.W then moveVector = moveVector + camCF.LookVector end
-                            if keys.S then moveVector = moveVector - camCF.LookVector end
-                            if keys.A then moveVector = moveVector - camCF.RightVector end
-                            if keys.D then moveVector = moveVector + camCF.RightVector end
-                            if keys.Space then moveVector = moveVector + Vector3.new(0, 1, 0) end
-                            if keys.Shift then moveVector = moveVector - Vector3.new(0, 1, 0) end
-                            
-                            bv.Velocity = moveVector * flySpeed
-                            bg.CFrame = camCF
+                            if not bv then bv = Instance.new("BodyVelocity", root) bv.MaxForce = Vector3.new(1e9, 1e9, 1e9) end
+                            if not bg then bg = Instance.new("BodyGyro", root) bg.MaxTorque = Vector3.new(1e9, 1e9, 1e9) end
+                            local cam = Workspace.CurrentCamera.CFrame
+                            local mv = Vector3.new()
+                            if keys.W then mv = mv + cam.LookVector end
+                            if keys.S then mv = mv - cam.LookVector end
+                            if keys.A then mv = mv - cam.RightVector end
+                            if keys.D then mv = mv + cam.RightVector end
+                            if keys.Space then mv = mv + Vector3.new(0, 1, 0) end
+                            if keys.Shift then mv = mv - Vector3.new(0, 1, 0) end
+                            bv.Velocity = mv * flySpd
+                            bg.CFrame = cam
                         else
-                            flyActiveState = false
+                            flyActive = false
                         end
                     end)
                 end
-                
-                if inputBegan then inputBegan:Disconnect() end
-                if inputEnded then inputEnded:Disconnect() end
-                if bv then bv:Destroy() end
-                if bg then bg:Destroy() end
-            end)
-
-            while state and flyActiveState do task.wait(0.1) end
-            if flyGuiV3 then flyGuiV3:Destroy() end
-            
-            pcall(function()
-                local char = LocalPlayer.Character
-                local hum = char and char:FindFirstChild("Humanoid")
-                if hum then hum.PlatformStand = false end
+                if ib then ib:Disconnect() end if ie then ie:Disconnect() end
+                if bv then bv:Destroy() end if bg then bg:Destroy() end
             end)
         else
-            flyActiveState = false
-            if flyGuiV3 then flyGuiV3:Destroy() end
-            pcall(function()
-                local char = LocalPlayer.Character
-                local hum = char and char:FindFirstChild("Humanoid")
-                if hum then hum.PlatformStand = false end
-            end)
+            flyActive = false
+            if flyGui then flyGui:Destroy() end
+            pcall(function() LocalPlayer.Character.Humanoid.PlatformStand = false end)
         end
     end)
 end)
 
-local noclipConnection
-CreateButton("No-Clip (Đi Xuyên Tường Giữ Chân Sàn)", function(state)
-    if state then
-        noclipConnection = RunService.Stepped:Connect(function()
+local noclipConn = nil
+AddBtn("No-Clip (Xuyên Tường Giữ Sàn)", function(st)
+    if st then
+        if noclipConn then noclipConn:Disconnect() noclipConn = nil end
+        noclipConn = RunService.Stepped:Connect(function()
             pcall(function()
                 local char = LocalPlayer.Character
                 if char then
-                    for _, part in ipairs(char:GetDescendants()) do
-                        if part:IsA("BasePart") then
-                            if part.Name ~= "LeftFoot" and part.Name ~= "RightFoot" and part.Name ~= "LeftLowerLeg" and part.Name ~= "RightLowerLeg" then
-                                part.CanCollide = false
-                            end
+                    for _, p in ipairs(char:GetDescendants()) do
+                        if p:IsA("BasePart") and p.Name ~= "LeftFoot" and p.Name ~= "RightFoot" and p.Name ~= "LeftLowerLeg" and p.Name ~= "RightLowerLeg" then
+                            p.CanCollide = false
                         end
                     end
                 end
             end)
         end)
     else
-        if noclipConnection then noclipConnection:Disconnect() end
+        if noclipConn then noclipConn:Disconnect() noclipConn = nil end
         pcall(function()
             local char = LocalPlayer.Character
             if char then
-                for _, part in ipairs(char:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = true
-                    end
+                for _, p in ipairs(char:GetDescendants()) do
+                    if p:IsA("BasePart") then p.CanCollide = true end
                 end
             end
         end)
     end
 end)
 
-local infJumpConn
-CreateButton("Nhảy Vô Hạn (Infinite Jump)", function(state)
-    if state then
+local infJumpConn = nil
+AddBtn("Nhảy Vô Hạn (Inf Jump)", function(st)
+    if st then
+        if infJumpConn then infJumpConn:Disconnect() infJumpConn = nil end
         infJumpConn = UserInputService.JumpRequest:Connect(function()
-            pcall(function()
-                local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-                if hum then
-                    hum:ChangeState(Enum.HumanoidStateType.Jumping)
-                end
-            end)
+            pcall(function() LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping) end)
         end)
     else
-        if infJumpConn then infJumpConn:Disconnect() end
+        if infJumpConn then infJumpConn:Disconnect() infJumpConn = nil end
     end
 end)
 
-local SpeedFrame = Instance.new("Frame")
+local SpeedFrame = Instance.new("Frame", Container)
 SpeedFrame.Size = UDim2.new(1, 0, 0, 50)
 SpeedFrame.BackgroundTransparency = 1
-SpeedFrame.Parent = Container
 
-local SpeedLabel = Instance.new("TextLabel")
-SpeedLabel.Size = UDim2.new(1, -10, 0, 20)
-SpeedLabel.Position = UDim2.new(0, 5, 0, 0)
+local SpeedLabel = Instance.new("TextLabel", SpeedFrame)
+SpeedLabel.Size = UDim2.new(1, 0, 0, 20)
 SpeedLabel.BackgroundTransparency = 1
 SpeedLabel.Text = "Tốc độ di chuyển: 16"
 SpeedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-SpeedLabel.Font = Enum.Font.SourceSansBold
-SpeedLabel.TextSize = 12
-SpeedLabel.Parent = SpeedFrame
+SpeedLabel.Font = Enum.Font.SourceSansBold SpeedLabel.TextSize = 12
 ApplyRainbow(SpeedLabel)
 
-local SpeedBar = Instance.
+local SpeedBar = Instance.new("TextBox", SpeedFrame)
+SpeedBar.Size = UDim2.new(1, 0, 0, 25)
+SpeedBar.Position = UDim2.new(0, 0, 0, 22)
+SpeedBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+SpeedBar.Text = "16" SpeedBar.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpeedBar.Font = Enum.Font.SourceSansBold SpeedBar.TextSize = 12
+Instance.new("UICorner", SpeedBar).CornerRadius = UDim.new(0, 4)
+
+SpeedBar.FocusLost:Connect(function()
+    local val = tonumber(SpeedBar.Text)
+    if val then
+        pcall(function()
+            local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum.WalkSpeed = val
+                SpeedLabel.Text = "Tốc độ di chuyển: " .. val
+                ShowNotif("[✓] Đã đổi tốc độ thành: " .. val)
+            end
+        end)
+    end
+end)
+
+AddBtn("Kéo Giãn Hitbox Zombie (1000 Studs)", function(st)
+    task.spawn(function()
+        while st do
+            task.wait(1)
+            if not st then break end
+            pcall(function()
+                for _, v in ipairs(Workspace:GetDescendants()) do
+                    if not st then break end
+                    local hum = v:FindFirstChild("Humanoid")
+                    if hum and v ~= LocalPlayer.Character then
+                        local isP = false
+                        for _, p in ipairs(Players:GetPlayers()) do if p.Character == v then isP = true end end
+                        if not isP then
+                            local mr = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head")
+                            if mr then mr.Size = Vector3.new(25, 25, 25) mr.Transparency = 0.5 mr.CanCollide = false end
+                        end
+                    end
+                end
+            end)
+        end
+    end)
+end)
+
+AddBtn("Anti-AFK (Treo Máy 24/7)", function(st)
+    task.spawn(function()
+        while st do
+            task.wait(600)
+            if not st then break end
+            pcall(function() VirtualUser:CaptureController() VirtualUser:ClickButton2(Vector2.new()) end)
+        end
+    end)
+end)
