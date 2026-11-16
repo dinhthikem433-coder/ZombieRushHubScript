@@ -66,7 +66,7 @@ end
 
 task.spawn(function()
     task.wait(1)
-    ShowNotification("Zombie Rush 3.0 Pro Master tạo bởi Thành 2k13")
+    ShowNotification("Zombie Rush 3.0 Ultimate Fixed tạo bởi Thành 2k13")
 end)
 
 local ToggleButton = Instance.new("TextButton")
@@ -171,62 +171,71 @@ local function CreateButton(name, callback)
     end)
 end
 
+local moneyActive = false
 CreateButton("Bug Tiền (Farm Kill Server)", function(state)
-    task.spawn(function()
-        while state and task.wait(0.2) do
-            pcall(function()
-                for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
-                    if v:IsA("RemoteEvent") then
-                        local n = v.Name:lower()
-                        if n:find("money") or n:find("cash") or n:find("reward") or n:find("add") or n:find("coin") or n:find("score") or n:find("give") then
-                            v:FireServer(999999)
-                            v:FireServer("AddCash", 999999)
-                            v:FireServer(LocalPlayer, 999999)
+    moneyActive = state
+    if moneyActive then
+        task.spawn(function()
+            while moneyActive do
+                task.wait(0.2)
+                pcall(function()
+                    for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
+                        if v:IsA("RemoteEvent") then
+                            local n = v.Name:lower()
+                            if n:find("money") or n:find("cash") or n:find("reward") or n:find("add") or n:find("coin") or n:find("score") or n:find("give") then
+                                v:FireServer(999999)
+                            end
                         end
                     end
-                end
-            end)
-        end
-    end)
+                end)
+            end
+        end)
+    end
 end)
 
+local killAuraActive = false
 CreateButton("Kill Aura (Quét Sạch Zombie)", function(state)
-    task.spawn(function()
-        while state and task.wait(0.1) do
-            pcall(function()
-                local char = LocalPlayer.Character
-                local root = char and char:FindFirstChild("HumanoidRootPart")
-                if not root then return end
-                
-                for _, v in ipairs(Workspace:GetDescendants()) do
-                    if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-                        local isPlayer = false
-                        for _, p in ipairs(Players:GetPlayers()) do
-                            if p.Character == v then
-                                isPlayer = true
-                                break
+    killAuraActive = state
+    if killAuraActive then
+        task.spawn(function()
+            while killAuraActive do
+                task.wait(0.1)
+                pcall(function()
+                    local char = LocalPlayer.Character
+                    local root = char and char:FindFirstChild("HumanoidRootPart")
+                    if not root then return end
+                    
+                    for _, v in ipairs(Workspace:GetDescendants()) do
+                        if not killAuraActive then break end
+                        if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+                            local isPlayer = false
+                            for _, p in ipairs(Players:GetPlayers()) do
+                                if p.Character == v then
+                                    isPlayer = true
+                                    break
+                                end
                             end
-                        end
-                        
-                        if not isPlayer then
-                            local mRoot = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head")
-                            if mRoot and (mRoot.Position - root.Position).Magnitude <= 2000 then
-                                for _, rem in ipairs(ReplicatedStorage:GetDescendants()) do
-                                    if rem:IsA("RemoteEvent") then
-                                        local rn = rem.Name:lower()
-                                        if rn:find("hit") or rn:find("damage") or rn:find("attack") or rn:find("shot") or rn:find("gun") or rn:find("kill") then
-                                            rem:FireServer(v, 99999)
+                            
+                            if not isPlayer then
+                                local mRoot = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head")
+                                if mRoot and (mRoot.Position - root.Position).Magnitude <= 3000 then
+                                    for _, rem in ipairs(ReplicatedStorage:GetDescendants()) do
+                                        if rem:IsA("RemoteEvent") then
+                                            local rn = rem.Name:lower()
+                                            if rn:find("hit") or rn:find("damage") or rn:find("attack") or rn:find("shot") or rn:find("gun") or rn:find("kill") then
+                                                rem:FireServer(v, 99999)
+                                            end
                                         end
                                     end
+                                    v.Humanoid.Health = 0
                                 end
-                                v.Humanoid.Health = 0
                             end
                         end
                     end
-                end
-            end)
-        end
-    end)
+                end)
+            end
+        end)
+    end
 end)
 
 local godConn
@@ -264,7 +273,9 @@ end)
 
 local flyGuiV3
 local flySpeed = 50
+local flyActiveState = false
 CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Hướng)", function(state)
+    flyActiveState = state
     task.spawn(function()
         if state then
             if flyGuiV3 then flyGuiV3:Destroy() end
@@ -320,15 +331,14 @@ CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Hướng)", function(state)
             closeFly.Parent = flyGuiV3
             Instance.new("UICorner", closeFly).CornerRadius = UDim.new(0, 4)
 
-            local flyingActive = true
             closeFly.MouseButton1Click:Connect(function()
-                flyingActive = false
+                flyActiveState = false
                 if flyGuiV3 then flyGuiV3:Destroy() end
             end)
 
             task.spawn(function()
                 local bv, bg
-                while flyingActive and state do
+                while flyActiveState and state do
                     task.wait()
                     pcall(function()
                         local char = LocalPlayer.Character
@@ -351,11 +361,18 @@ CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Hướng)", function(state)
                             
                             local cam = Workspace.CurrentCamera
                             local moveDir = hum.MoveDirection
-                            -- Fix chuẩn xác trục lên/xuống và tiến/lùi theo camera nhìn
-                            bv.Velocity = (cam.CFrame.LookVector * (moveDir.Z * flySpeed)) + (cam.CFrame.RightVector * (moveDir.X * flySpeed)) + (cam.CFrame.UpVector * (moveDir.Y * flySpeed))
-                            bg.CFrame = cam.CFrame
+                            -- Fix triệt để: Lấy trực tiếp hướng di chuyển thời gian thực theo góc nhìn camera
+                            local camCF = cam.CFrame
+                            local flyVector = Vector3.new(0, 0, 0)
+                            
+                            if moveDir.Magnitude > 0 then
+                                flyVector = (camCF.LookVector * moveDir.Z + camCF.RightVector * moveDir.X + Vector3.new(0, moveDir.Y, 0)) * flySpeed
+                            end
+                            
+                            bv.Velocity = flyVector
+                            bg.CFrame = camCF
                         else
-                            flyingActive = false
+                            flyActiveState = false
                         end
                     end)
                 end
@@ -363,7 +380,7 @@ CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Hướng)", function(state)
                 if bg then bg:Destroy() end
             end)
 
-            while state and flyingActive do task.wait(0.1) end
+            while state and flyActiveState do task.wait(0.1) end
             if flyGuiV3 then flyGuiV3:Destroy() end
             
             pcall(function()
@@ -372,6 +389,7 @@ CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Hướng)", function(state)
                 if hum then hum.PlatformStand = false end
             end)
         else
+            flyActiveState = false
             if flyGuiV3 then flyGuiV3:Destroy() end
             pcall(function()
                 local char = LocalPlayer.Character
@@ -468,43 +486,33 @@ SpeedBar.FocusLost:Connect(function(enterPressed)
     end
 end)
 
+local hitboxActive = false
 CreateButton("Kéo Giãn Hitbox Zombie (1000 Studs)", function(state)
-    task.spawn(function()
-        while state and task.wait(1) do
-            pcall(function()
-                for _, v in ipairs(Workspace:GetDescendants()) do
-                    if v:FindFirstChild("Humanoid") and v ~= LocalPlayer.Character then
-                        local isPlayer = false
-                        for _, p in ipairs(Players:GetPlayers()) do
-                            if p.Character == v then
-                                isPlayer = true
-                                break
+    hitboxActive = state
+    if hitboxActive then
+        task.spawn(function()
+            while hitboxActive do
+                task.wait(1)
+                pcall(function()
+                    for _, v in ipairs(Workspace:GetDescendants()) do
+                        if not hitboxActive then break end
+                        if v:FindFirstChild("Humanoid") and v ~= LocalPlayer.Character then
+                            local isPlayer = false
+                            for _, p in ipairs(Players:GetPlayers()) do
+                                if p.Character == v then
+                                    isPlayer = true
+                                    break
+                                end
                             end
-                        end
-                        
-                        if not isPlayer then
-                            local mRoot = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head")
-                            if mRoot then
-                                mRoot.Size = Vector3.new(25, 25, 25)
-                                mRoot.Transparency = 0.5
-                                mRoot.CanCollide = false
+                            
+                            if not isPlayer then
+                                local mRoot = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head")
+                                if mRoot then
+                                    mRoot.Size = Vector3.new(25, 25, 25)
+                                    mRoot.Transparency = 0.5
+                                    mRoot.CanCollide = false
+                                end
                             end
                         end
                     end
-                end
-            end)
-        end
-    end)
-end)
-
-CreateButton("Anti-AFK (Treo Máy 24/7)", function(state)
-    task.spawn(function()
-        while state do
-            task.wait(600)
-            pcall(function()
-                VirtualUser:CaptureController()
-                VirtualUser:ClickButton2(Vector2.new(0,0))
-            end)
-        end
-    end)
-end)
+            
