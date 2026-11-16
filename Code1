@@ -5,6 +5,7 @@ local VirtualUser = game:GetService("VirtualUser")
 local Workspace = game:GetService("Workspace")
 local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
 
 if CoreGui:FindFirstChild("RainbowZombieHub") then
@@ -281,19 +282,27 @@ AddBtn("Vô Hạn Đạn & Bắn Nhanh Vài Chục Phát/s", function(st)
     end)
 end)
 
-AddBtn("Tiêu Tiền Trong Trận Không Mất (Free Shop)", function(st)
+AddBtn("Free Shop (Mua Không Mất Tiền)", function(st)
     task.spawn(function()
         while st do
             task.wait(0.1)
             if not st then break end
             pcall(function()
-                for _, p in ipairs(Players:GetPlayers()) do
-                    local stats = p:FindFirstChild("leaderstats") or p:FindFirstChild("Stats")
-                    if stats then
-                        for _, stat in ipairs(stats:GetChildren()) do
-                            if stat.Name:lower():find("money") or stat.Name:lower():find("cash") or stat.Name:lower():find("zombux") then
-                                if stat.Value < 99999 then stat.Value = 99999 end
-                            end
+                for _, v in ipairs(getgc(true)) do
+                    if type(v) == "table" then
+                        if rawget(v, "Cost") then v.Cost = 0 end
+                        if rawget(v, "Price") then v.Price = 0 end
+                        if rawget(v, "Cash") then v.Cash = 0 end
+                        if rawget(v, "Money") then v.Money = 0 end
+                    end
+                end
+                for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
+                    if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
+                        local n = v.Name:lower()
+                        if n:find("buy") or n:find("purchase") or n:find("shop") or n:find("upgrade") then
+                            pcall(function()
+                                v:FireServer(0)
+                            end)
                         end
                     end
                 end
@@ -302,23 +311,15 @@ AddBtn("Tiêu Tiền Trong Trận Không Mất (Free Shop)", function(st)
     end)
 end)
 
-local auraShield = nil
+local forceFieldObj = nil
 local trueGodConn = nil
-AddBtn("Aura (Bất Tử & Vòng Khiên Bảo Vệ)", function(st)
+AddBtn("Aura", function(st)
     if st then
         pcall(function()
             local char = LocalPlayer.Character
-            local root = char and char:FindFirstChild("HumanoidRootPart")
-            if root and not auraShield then
-                auraShield = Instance.new("Part", root)
-                auraShield.Size = Vector3.new(6, 6, 6)
-                auraShield.Shape = Enum.PartType.Ball
-                auraShield.Transparency = 0.6
-                auraShield.BrickColor = BrickColor.new("Cyan")
-                auraShield.CanCollide = false
-                local weld = Instance.new("WeldConstraint", auraShield)
-                weld.Part0 = root
-                weld.Part1 = auraShield
+            if char and not forceFieldObj then
+                forceFieldObj = Instance.new("ForceField", char)
+                forceFieldObj.Visible = true
             end
         end)
         if trueGodConn then trueGodConn:Disconnect() end
@@ -330,7 +331,7 @@ AddBtn("Aura (Bất Tử & Vòng Khiên Bảo Vệ)", function(st)
             end)
         end)
     else
-        if auraShield then auraShield:Destroy() auraShield = nil end
+        if forceFieldObj then forceFieldObj:Destroy() forceFieldObj = nil end
         if trueGodConn then trueGodConn:Disconnect() trueGodConn = nil end
     end
 end)
@@ -375,7 +376,6 @@ AddBtn("Cơ Chế Fly (Fly V3 Chuẩn)", function(st)
             clsBtn.MouseButton1Click:Connect(function() flyActive = false if flyGui then flyGui:Destroy() end end)
 
             task.spawn(function()
-                local bv, bg
                 local keys = {W = false, S = false, A = false, D = false, Space = false, Shift = false}
                 local ib = UserInputService.InputBegan:Connect(function(i)
                     if i.KeyCode == Enum.KeyCode.W then keys.W = true elseif i.KeyCode == Enum.KeyCode.S then keys.S = true
@@ -395,8 +395,7 @@ AddBtn("Cơ Chế Fly (Fly V3 Chuẩn)", function(st)
                         local root = char and char:FindFirstChild("HumanoidRootPart")
                         local hum = char and char:FindFirstChild("Humanoid")
                         if root and hum and hum.Health > 0 then
-                            if not bv then bv = Instance.new("BodyVelocity", root) bv.MaxForce = Vector3.new(1e9, 1e9, 1e9) end
-                            if not bg then bg = Instance.new("BodyGyro", root) bg.MaxTorque = Vector3.new(1e9, 1e9, 1e9) end
+                            hum.PlatformStand = true
                             local cam = Workspace.CurrentCamera.CFrame
                             local mv = Vector3.new()
                             if keys.W then mv = mv + cam.LookVector end
@@ -405,19 +404,21 @@ AddBtn("Cơ Chế Fly (Fly V3 Chuẩn)", function(st)
                             if keys.D then mv = mv + cam.RightVector end
                             if keys.Space then mv = mv + Vector3.new(0, 1, 0) end
                             if keys.Shift then mv = mv - Vector3.new(0, 1, 0) end
-                            bv.Velocity = mv * flySpd
-                            bg.CFrame = cam
+                            
+                            root.CFrame = root.CFrame + (mv * (flySpd * 0.05))
+                            root.Velocity = Vector3.new(0, 0, 0)
                         else
                             flyActive = false
                         end
                     end)
                 end
                 if ib then ib:Disconnect() end if ie then ie:Disconnect() end
-                if bv then bv:Destroy() end if bg then bg:Destroy() end
+                pcall(function() LocalPlayer.Character.Humanoid.PlatformStand = false end)
             end)
         else
             flyActive = false
             if flyGui then flyGui:Destroy() end
+            pcall(function() LocalPlayer.Character.Humanoid.PlatformStand = false end)
         end
     end)
 end)
