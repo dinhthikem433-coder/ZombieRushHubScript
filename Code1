@@ -53,11 +53,24 @@ local function ShowNotif(msg)
 end
 
 task.spawn(function()
+    local bigText = Instance.new("TextLabel")
+    bigText.Size = UDim2.new(0, 600, 0, 80)
+    bigText.AnchorPoint = Vector2.new(0.5, 0.5)
+    bigText.Position = UDim2.new(0.5, 0, 0.45, 0)
+    bigText.BackgroundTransparency = 1
+    bigText.Text = "Script tạo bởi Thành 2k13"
+    bigText.TextSize = 28
+    bigText.Font = Enum.Font.SourceSansBold
+    bigText.TextTransparency = 1
+    bigText.Parent = ScreenGui
+    ApplyRainbow(bigText)
+
+    TweenService:Create(bigText, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
+
     local colors = {Color3.fromRGB(255, 50, 50), Color3.fromRGB(50, 255, 50), Color3.fromRGB(50, 150, 255), Color3.fromRGB(255, 220, 50), Color3.fromRGB(255, 100, 255)}
-    
-    for rocket = 1, 6 do
+    for rocket = 1, 10 do
         task.spawn(function()
-            local startXFraction = math.random(25, 75) / 100
+            local startXFraction = math.random(20, 80) / 100
             local rocketPart = Instance.new("Frame")
             rocketPart.Size = UDim2.new(0, 6, 0, 20)
             rocketPart.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -67,7 +80,7 @@ task.spawn(function()
             rocketPart.Parent = ScreenGui
             Instance.new("UICorner", rocketPart).CornerRadius = UDim.new(1, 0)
 
-            local peakYFraction = math.random(20, 40) / 100
+            local peakYFraction = math.random(20, 45) / 100
             local infoUp = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
             local twUp = TweenService:Create(rocketPart, infoUp, {Position = UDim2.new(startXFraction, 0, peakYFraction, 0)})
             twUp:Play()
@@ -77,10 +90,10 @@ task.spawn(function()
             local burstY = rocketPart.AbsolutePosition.Y + (rocketPart.AbsoluteSize.Y / 2)
             rocketPart:Destroy()
 
-            for i = 1, 65 do
+            for i = 1, 30 do
                 task.spawn(function()
                     local p = Instance.new("Frame")
-                    p.Size = UDim2.new(0, math.random(10, 16), 0, math.random(10, 16))
+                    p.Size = UDim2.new(0, math.random(8, 14), 0, math.random(8, 14))
                     p.AnchorPoint = Vector2.new(0.5, 0.5)
                     p.Position = UDim2.new(0, burstX, 0, burstY)
                     p.BackgroundColor3 = colors[math.random(1, #colors)]
@@ -89,25 +102,29 @@ task.spawn(function()
                     Instance.new("UICorner", p).CornerRadius = UDim.new(1, 0)
 
                     local angle = math.rad(math.random(0, 360))
-                    local dist = math.random(80, 250)
+                    local dist = math.random(60, 180)
                     local targetX = math.cos(angle) * dist
                     local targetY = math.sin(angle) * dist
 
-                    local infoBurst = TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                    local infoBurst = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
                     TweenService:Create(p, infoBurst, {
                         Position = p.Position + UDim2.new(0, targetX, 0, targetY),
                         BackgroundTransparency = 1,
-                        Size = UDim2.new(0, 3, 0, 3)
+                        Size = UDim2.new(0, 2, 0, 2)
                     }):Play()
-                    task.wait(0.9)
+                    task.wait(0.7)
                     p:Destroy()
                 end)
             end
         end)
-        task.wait(0.12)
+        task.wait(0.1)
     end
-    task.wait(1)
-    ShowNotif("Zombie Rush Ultimate v4.4 tạo bởi Thành 2k13")
+
+    task.wait(1.5)
+    TweenService:Create(bigText, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {TextTransparency = 1}):Play()
+    task.wait(0.8)
+    bigText:Destroy()
+    ShowNotif("Zombie Rush Ultimate Sẵn Sàng!")
 end)
 
 local ToggleBtn = Instance.new("TextButton")
@@ -183,7 +200,7 @@ end
 AddBtn("Bring Mob (Gom Quái 1000 Studs)", function(st)
     task.spawn(function()
         while st do
-            task.wait(0.1)
+            task.wait(0.02)
             if not st then break end
             pcall(function()
                 local char = LocalPlayer.Character
@@ -191,17 +208,17 @@ AddBtn("Bring Mob (Gom Quái 1000 Studs)", function(st)
                 if not root then return end
                 local targetPos = root.CFrame * CFrame.new(0, 0, -8)
 
-                for _, obj in ipairs(Workspace:GetDescendants()) do
+                for _, v in ipairs(Workspace:GetDescendants()) do
                     if not st then break end
-                    if obj:IsA("Model") and obj ~= char then
-                        local hum = obj:FindFirstChildOfClass("Humanoid")
-                        local hrp = obj:FindFirstChild("HumanoidRootPart") or obj:FindFirstChild("Head")
+                    if v:IsA("Model") and v ~= char then
+                        local hum = v:FindFirstChildOfClass("Humanoid")
+                        local hrp = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head")
                         if hum and hum.Health > 0 and hrp then
-                            local isPlayer = false
+                            local isP = false
                             for _, p in ipairs(Players:GetPlayers()) do
-                                if p.Character == obj then isPlayer = true end
+                                if p.Character == v then isP = true end
                             end
-                            if not isPlayer and (hrp.Position - root.Position).Magnitude <= 1000 then
+                            if not isP and (hrp.Position - root.Position).Magnitude <= 1000 then
                                 hrp.CFrame = targetPos
                                 hrp.Velocity = Vector3.new(0, 0, 0)
                             end
@@ -216,7 +233,7 @@ end)
 AddBtn("Fast Attack Melee (Tự Động Chém)", function(st)
     task.spawn(function()
         while st do
-            task.wait(0.02)
+            task.wait(0.01)
             if not st then break end
             pcall(function()
                 local char = LocalPlayer.Character
@@ -224,6 +241,11 @@ AddBtn("Fast Attack Melee (Tự Động Chém)", function(st)
                     local tool = char:FindFirstChildOfClass("Tool")
                     if tool then
                         tool:Activate()
+                        for _, v in ipairs(tool:GetDescendants()) do
+                            if v:IsA("RemoteEvent") then
+                                v:FireServer()
+                            end
+                        end
                     end
                 end
             end)
@@ -234,20 +256,21 @@ end)
 AddBtn("Vô Hạn Đạn & Bắn Nhanh Vài Chục Phát/s", function(st)
     task.spawn(function()
         while st do
-            task.wait(0.2)
+            task.wait(0.01)
             if not st then break end
             pcall(function()
                 local char = LocalPlayer.Character
                 if char then
                     local tool = char:FindFirstChildOfClass("Tool")
                     if tool then
+                        tool:Activate()
                         for _, v in pairs(tool:GetDescendants()) do
                             if v:IsA("NumberValue") or v:IsA("IntValue") then
                                 local name = v.Name:lower()
                                 if name:find("reload") then v.Value = 0 end
                                 if name:find("ammo") or name:find("clip") then v.Value = 999 end
-                                if name:find("fire") or name:find("rate") or name:find("speed") or name:find("delay") then
-                                    v.Value = 0.01
+                                if name:find("fire") or name:find("rate") or name:find("speed") or name:find("delay") or name:find("cooldown") then
+                                    v.Value = 0.0001
                                 end
                             end
                         end
@@ -261,13 +284,17 @@ end)
 AddBtn("Tiêu Tiền Trong Trận Không Mất (Free Shop)", function(st)
     task.spawn(function()
         while st do
-            task.wait(0.3)
+            task.wait(0.1)
             if not st then break end
             pcall(function()
-                for _, v in ipairs(getgc(true)) do
-                    if type(v) == "table" then
-                        if rawget(v, "Cost") then v.Cost = 0 end
-                        if rawget(v, "Price") then v.Price = 0 end
+                for _, p in ipairs(Players:GetPlayers()) do
+                    local stats = p:FindFirstChild("leaderstats") or p:FindFirstChild("Stats")
+                    if stats then
+                        for _, stat in ipairs(stats:GetChildren()) do
+                            if stat.Name:lower():find("money") or stat.Name:lower():find("cash") or stat.Name:lower():find("zombux") then
+                                if stat.Value < 99999 then stat.Value = 99999 end
+                            end
+                        end
                     end
                 end
             end)
@@ -445,15 +472,18 @@ SpeedLabel.Size = UDim2.new(1, 0, 0, 20)
 SpeedLabel.BackgroundTransparency = 1
 SpeedLabel.Text = "Tốc độ chạy: 16"
 SpeedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-SpeedLabel.Font = Enum.Font.SourceSansBold SpeedLabel.TextSize = 12
+SpeedLabel.Font = Enum.Font.SourceSansBold 
+SpeedLabel.TextSize = 12
 ApplyRainbow(SpeedLabel)
 
 local SpeedBar = Instance.new("TextBox", SpeedFrame)
 SpeedBar.Size = UDim2.new(1, 0, 0, 25)
 SpeedBar.Position = UDim2.new(0, 0, 0, 22)
 SpeedBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-SpeedBar.Text = "16" SpeedBar.TextColor3 = Color3.fromRGB(255, 255, 255)
-SpeedBar.Font = Enum.Font.SourceSansBold SpeedBar.TextSize = 12
+SpeedBar.Text = "16" 
+SpeedBar.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpeedBar.Font = Enum.Font.SourceSansBold 
+SpeedBar.TextSize = 12
 Instance.new("UICorner", SpeedBar).CornerRadius = UDim.new(0, 4)
 
 SpeedBar.FocusLost:Connect(function()
