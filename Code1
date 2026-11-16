@@ -66,7 +66,7 @@ end
 
 task.spawn(function()
     task.wait(1)
-    ShowNotification("Script Zombie 3.0 Pro (Có chỉnh tốc độ bay) tạo bởi Thành 2k13")
+    ShowNotification("Zombie Rush 3.0 Free Hub tạo bởi Thành 2k13")
 end)
 
 local ToggleButton = Instance.new("TextButton")
@@ -241,8 +241,8 @@ CreateButton("Bất Tử (Tách Hitbox An Toàn)", function(state)
 end)
 
 local flyGuiV3
-local flySpeed = 0.5 -- Tốc độ bay mặc định
-CreateButton("Cơ Chế Bay (Fly V3 CFrame Chuẩn)", function(state)
+local flySpeed = 50
+CreateButton("Cơ Chế Bay (Fly V3 Pro Anti-Cheat)", function(state)
     task.spawn(function()
         if state then
             if flyGuiV3 then flyGuiV3:Destroy() end
@@ -263,19 +263,18 @@ CreateButton("Cơ Chế Bay (Fly V3 CFrame Chuẩn)", function(state)
             local titleFly = Instance.new("TextLabel")
             titleFly.Size = UDim2.new(1, 0, 0, 28)
             titleFly.BackgroundTransparency = 1
-            titleFly.Text = "FLY GUI V3 (PRO)"
+            titleFly.Text = "FLY GUI V3 (3.0)"
             titleFly.TextColor3 = Color3.fromRGB(255, 255, 255)
             titleFly.Font = Enum.Font.SourceSansBold
             titleFly.TextSize = 12
             titleFly.Parent = flyGuiV3
             ApplyRainbow(titleFly)
 
-            -- Thanh chỉnh tốc độ bay
             local speedFlyBtn = Instance.new("TextButton")
             speedFlyBtn.Size = UDim2.new(0.9, 0, 0, 30)
             speedFlyBtn.Position = UDim2.new(0.05, 0, 0, 32)
             speedFlyBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-            speedFlyBtn.Text = "Tốc độ bay: " .. (flySpeed * 10) .. "x (Bấm đổi)"
+            speedFlyBtn.Text = "Tốc độ bay: " .. flySpeed .. " (Bấm đổi)"
             speedFlyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
             speedFlyBtn.Font = Enum.Font.SourceSansBold
             speedFlyBtn.TextSize = 11
@@ -283,9 +282,9 @@ CreateButton("Cơ Chế Bay (Fly V3 CFrame Chuẩn)", function(state)
             Instance.new("UICorner", speedFlyBtn).CornerRadius = UDim.new(0, 4)
 
             speedFlyBtn.MouseButton1Click:Connect(function()
-                flySpeed = flySpeed + 0.25
-                if flySpeed > 2.0 then flySpeed = 0.25 end
-                speedFlyBtn.Text = "Tốc độ bay: " .. string.format("%.1f", flySpeed * 10) .. "x (Bấm đổi)"
+                flySpeed = flySpeed + 25
+                if flySpeed > 150 then flySpeed = 25 end
+                speedFlyBtn.Text = "Tốc độ bay: " .. flySpeed .. " (Bấm đổi)"
             end)
 
             local closeFly = Instance.new("TextButton")
@@ -306,32 +305,37 @@ CreateButton("Cơ Chế Bay (Fly V3 CFrame Chuẩn)", function(state)
             end)
 
             task.spawn(function()
-                local hbConn
-                hbConn = RunService.RenderStepped:Connect(function()
-                    if not flyingActive or not state then
-                        if hbConn then hbConn:Disconnect() end
-                        return
-                    end
+                local bv, bg
+                while flyingActive and state do
+                    task.wait()
                     pcall(function()
                         local char = LocalPlayer.Character
                         local root = char and char:FindFirstChild("HumanoidRootPart")
                         local hum = char and char:FindFirstChild("Humanoid")
                         if root and hum then
                             hum.PlatformStand = true
+                            if not bv then
+                                bv = Instance.new("BodyVelocity")
+                                bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                                bv.Velocity = Vector3.new(0, 0, 0)
+                                bv.Parent = root
+                            end
+                            if not bg then
+                                bg = Instance.new("BodyGyro")
+                                bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+                                bg.CFrame = Workspace.CurrentCamera.CFrame
+                                bg.Parent = root
+                            end
+                            
                             local cam = Workspace.CurrentCamera
                             local moveDir = hum.MoveDirection
-                            
-                            if moveDir.Magnitude > 0 then
-                                root.CFrame = root.CFrame + (cam.CFrame:VectorToWorldSpace(moveDir) * flySpeed)
-                            else
-                                root.CFrame = root.CFrame + Vector3.new(0, 0.05, 0)
-                            end
+                            bv.Velocity = (cam.CFrame.LookVector * (moveDir.Z * -flySpeed)) + (cam.CFrame.RightVector * (moveDir.X * flySpeed)) + Vector3.new(0, (moveDir.Y * flySpeed), 0)
+                            bg.CFrame = cam.CFrame
                         end
                     end)
-                end)
-
-                while state and flyingActive do task.wait(0.1) end
-                if hbConn then hbConn:Disconnect() end
+                end
+                if bv then bv:Destroy() end
+                if bg then bg:Destroy() end
             end)
 
             while state and flyingActive do task.wait(0.1) end
@@ -359,7 +363,7 @@ CreateButton("No-Clip (Chỉ Xuyên Tường Trước Mặt)", function(state)
                 local char = LocalPlayer.Character
                 if char then
                     for _, part in ipairs(char:GetDescendants()) do
-                        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and part.Name ~= "LowerTorso" then
+                        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and part.Name ~= "LeftFoot" and part.Name ~= "RightFoot" and part.Name ~= "LeftLowerLeg" and part.Name ~= "RightLowerLeg" then
                             part.CanCollide = false
                         end
                     end
