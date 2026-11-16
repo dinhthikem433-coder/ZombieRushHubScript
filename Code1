@@ -2,7 +2,6 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local VirtualUser = game:GetService("VirtualUser")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local CoreGui = game:GetService("CoreGui")
 local LocalPlayer = Players.LocalPlayer
@@ -54,7 +53,7 @@ end
 
 task.spawn(function()
     task.wait(1)
-    ShowNotif("Zombie Rush 3.0 Cap 1M Cash tạo bởi Thành 2k13")
+    ShowNotif("Zombie Rush Safe Pro Edition tạo bởi Thành 2k13")
 end)
 
 local ToggleBtn = Instance.new("TextButton")
@@ -98,7 +97,7 @@ local Container = Instance.new("ScrollingFrame")
 Container.Size = UDim2.new(1, -10, 1, -50)
 Container.Position = UDim2.new(0, 5, 0, 45)
 Container.BackgroundTransparency = 1
-Container.CanvasSize = UDim2.new(0, 0, 0, 620)
+Container.CanvasSize = UDim2.new(0, 0, 0, 650)
 Container.ScrollBarThickness = 3
 Container.Parent = Main
 
@@ -127,79 +126,29 @@ local function AddBtn(name, callback)
     end)
 end
 
--- Bug Tiền Thật: Đã giới hạn mức trần 1,000,000 tiền an toàn tuyệt đối
-AddBtn("Bug Tiền (Giới hạn 1 Triệu)", function(st)
+AddBtn("Aimbot Khóa Tâm Săn Zombux", function(st)
     task.spawn(function()
         while st do
-            task.wait(2.5)
-            if not st then break end
-            pcall(function()
-                local leaderstats = LocalPlayer:FindFirstChild("leaderstats")
-                if leaderstats then
-                    for _, stat in ipairs(leaderstats:GetChildren()) do
-                        local name = stat.Name:lower()
-                        if name:find("cash") or name:find("money") or name:find("coin") or name:find("point") then
-                            if stat.Value < 1000000 then
-                                stat.Value = stat.Value + 1000
-                            end
-                        end
-                    end
-                end
-                for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
-                    if not st then break end
-                    if v:IsA("RemoteEvent") then
-                        local n = v.Name:lower()
-                        if n:find("addcash") or n:find("givemoney") or n:find("reward") then
-                            v:FireServer(1000)
-                        end
-                    end
-                end
-            end)
-        end
-    end)
-end)
-
--- Kill Aura Thật: Quét trọn vẹn toàn bộ Workspace an toàn
-AddBtn("Kill Aura Thật (Real One-Hit)", function(st)
-    task.spawn(function()
-        local targetRemote = nil
-        pcall(function()
-            for _, r in ipairs(ReplicatedStorage:GetDescendants()) do
-                if r:IsA("RemoteEvent") then
-                    local rn = r.Name:lower()
-                    if rn:find("damage") or rn:find("hit") or rn:find("shoot") then
-                        targetRemote = r
-                        break
-                    end
-                end
-            end
-        end)
-
-        while st do
-            task.wait(0.2)
+            task.wait(0.15)
             if not st then break end
             pcall(function()
                 local char = LocalPlayer.Character
                 local root = char and char:FindFirstChild("HumanoidRootPart")
                 if not root then return end
 
-                for _, v in ipairs(Workspace:GetDescendants()) do
+                for _, obj in ipairs(Workspace:GetDescendants()) do
                     if not st then break end
-                    local hum = v:FindFirstChild("Humanoid")
-                    if hum and hum.Health > 0 and v ~= char then
-                        local isP = false
-                        for _, p in ipairs(Players:GetPlayers()) do if p.Character == v then isP = true end end
-                        if not isP then
-                            local mr = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head")
-                            if mr and (mr.Position - root.Position).Magnitude <= 100 then
-                                Workspace.CurrentCamera.CFrame = CFrame.new(Workspace.CurrentCamera.CFrame.Position, mr.Position)
-                                
-                                if targetRemote then
-                                    targetRemote:FireServer(v, 999999, mr.Position)
-                                else
-                                    hum.Health = 0
-                                end
-                                break 
+                    if obj:IsA("Model") and obj ~= char then
+                        local hum = obj:FindFirstChildOfClass("Humanoid")
+                        local hrp = obj:FindFirstChild("HumanoidRootPart") or obj:FindFirstChild("Head")
+                        if hum and hum.Health > 0 and hrp then
+                            local isPlayer = false
+                            for _, p in ipairs(Players:GetPlayers()) do
+                                if p.Character == obj then isPlayer = true end
+                            end
+                            if not isPlayer and (hrp.Position - root.Position).Magnitude <= 150 then
+                                Workspace.CurrentCamera.CFrame = CFrame.new(Workspace.CurrentCamera.CFrame.Position, hrp.Position)
+                                break
                             end
                         end
                     end
@@ -209,26 +158,24 @@ AddBtn("Kill Aura Thật (Real One-Hit)", function(st)
     end)
 end)
 
-local godConn = nil
+local trueGodConn = nil
 AddBtn("Bất Tử (Safe GodMode)", function(st)
-    pcall(function()
-        local char = LocalPlayer.Character
-        local hum = char and char:FindFirstChildOfClass("Humanoid")
-        if st then
-            if hum then
-                if godConn then godConn:Disconnect() godConn = nil end
-                godConn = hum.HealthChanged:Connect(function()
-                    if hum.Health < hum.MaxHealth then 
-                        hum.Health = hum.MaxHealth 
+    if st then
+        if trueGodConn then trueGodConn:Disconnect() end
+        trueGodConn = RunService.RenderStepped:Connect(function()
+            pcall(function()
+                local char = LocalPlayer.Character
+                local hum = char and char:FindFirstChildOfClass("Humanoid")
+                if hum then
+                    if hum.Health < hum.MaxHealth then
+                        hum.Health = hum.MaxHealth
                     end
-                end)
-            end
-            if char and not char:FindFirstChildOfClass("ForceField") then Instance.new("ForceField", char) end
-        else
-            if godConn then godConn:Disconnect() godConn = nil end
-            if char then for _, f in ipairs(char:GetChildren()) do if f:IsA("ForceField") then f:Destroy() end end end
-        end
-    end)
+                end
+            end)
+        end)
+    else
+        if trueGodConn then trueGodConn:Disconnect() trueGodConn = nil end
+    end
 end)
 
 local flyActive, flyGui, flySpd = false, nil, 50
@@ -285,13 +232,12 @@ AddBtn("Cơ Chế Bay (Fly V3 Chuẩn)", function(st)
                 end)
 
                 while flyActive and st do
-                    task.wait()
+                    RunService.RenderStepped:Wait()
                     pcall(function()
                         local char = LocalPlayer.Character
                         local root = char and char:FindFirstChild("HumanoidRootPart")
                         local hum = char and char:FindFirstChild("Humanoid")
                         if root and hum and hum.Health > 0 then
-                            hum.PlatformStand = true
                             if not bv then bv = Instance.new("BodyVelocity", root) bv.MaxForce = Vector3.new(1e9, 1e9, 1e9) end
                             if not bg then bg = Instance.new("BodyGyro", root) bg.MaxTorque = Vector3.new(1e9, 1e9, 1e9) end
                             local cam = Workspace.CurrentCamera.CFrame
@@ -315,7 +261,6 @@ AddBtn("Cơ Chế Bay (Fly V3 Chuẩn)", function(st)
         else
             flyActive = false
             if flyGui then flyGui:Destroy() end
-            pcall(function() LocalPlayer.Character.Humanoid.PlatformStand = false end)
         end
     end)
 end)
@@ -329,7 +274,7 @@ AddBtn("No-Clip (Xuyên Tường Giữ Sàn)", function(st)
                 local char = LocalPlayer.Character
                 if char then
                     for _, p in ipairs(char:GetDescendants()) do
-                        if p:IsA("BasePart") and p.Name ~= "LeftFoot" and p.Name ~= "RightFoot" and p.Name ~= "LeftLowerLeg" and p.Name ~= "RightLowerLeg" then
+                        if p:IsA("BasePart") and p.Name ~= "LeftFoot" and p.Name ~= "RightFoot" then
                             p.CanCollide = false
                         end
                     end
@@ -401,15 +346,23 @@ AddBtn("Kéo Giãn Hitbox Zombie (1000 Studs)", function(st)
             task.wait(1)
             if not st then break end
             pcall(function()
-                for _, v in ipairs(Workspace:GetDescendants()) do
+                for _, obj in ipairs(Workspace:GetDescendants()) do
                     if not st then break end
-                    local hum = v:FindFirstChild("Humanoid")
-                    if hum and v ~= LocalPlayer.Character then
-                        local isP = false
-                        for _, p in ipairs(Players:GetPlayers()) do if p.Character == v then isP = true end end
-                        if not isP then
-                            local mr = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head")
-                            if mr then mr.Size = Vector3.new(25, 25, 25) mr.Transparency = 0.5 mr.CanCollide = false end
+                    if obj:IsA("Model") and obj ~= LocalPlayer.Character then
+                        local hum = obj:FindFirstChildOfClass("Humanoid")
+                        if hum then
+                            local isPlayer = false
+                            for _, p in ipairs(Players:GetPlayers()) do
+                                if p.Character == obj then isPlayer = true end
+                            end
+                            if not isPlayer then
+                                local mr = obj:FindFirstChild("HumanoidRootPart") or obj:FindFirstChild("Head")
+                                if mr then
+                                    mr.Size = Vector3.new(25, 25, 25)
+                                    mr.Transparency = 0.5
+                                    mr.CanCollide = false
+                                end
+                            end
                         end
                     end
                 end
