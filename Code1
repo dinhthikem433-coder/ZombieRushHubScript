@@ -52,8 +52,39 @@ local function ShowNotif(msg)
 end
 
 task.spawn(function()
-    task.wait(1)
-    ShowNotif("Zombie Rush Safe Pro Edition tạo bởi Thành 2k13")
+    local emojis = {"🔥", "✨", "🥶", "⚡", "💎", "🌟"}
+    local tw = game:GetService("TweenService")
+    
+    for i = 1, 25 do
+        task.spawn(function()
+            local p = Instance.new("TextLabel")
+            p.Size = UDim2.new(0, 25, 0, 25)
+            p.AnchorPoint = Vector2.new(0.5, 0.5)
+            p.Position = UDim2.new(0.5, 0, 0.5, 0)
+            p.BackgroundTransparency = 1
+            p.Text = emojis[math.random(1, #emojis)]
+            p.TextSize = math.random(14, 24)
+            p.Font = Enum.Font.SourceSansBold
+            p.Parent = ScreenGui
+            
+            local angle = math.rad(math.random(0, 360))
+            local distance = math.random(60, 220)
+            local targetX = math.cos(angle) * distance
+            local targetY = math.sin(angle) * distance
+            
+            local info = TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+            local goal = {
+                Position = p.Position + UDim2.new(0, targetX, 0, targetY),
+                TextTransparency = 1,
+                TextSize = 5
+            }
+            tw:Create(p, info, goal):Play()
+            task.wait(0.9)
+            p:Destroy()
+        end)
+    end
+    task.wait(0.6)
+    ShowNotif("Zombie Rush VIP Fireworks Edition tạo bởi Thành 2k13")
 end)
 
 local ToggleBtn = Instance.new("TextButton")
@@ -126,15 +157,16 @@ local function AddBtn(name, callback)
     end)
 end
 
-AddBtn("Aimbot Khóa Tâm Săn Zombux", function(st)
+AddBtn("Bring Mob (Gom Quái Giữa Map)", function(st)
     task.spawn(function()
         while st do
-            task.wait(0.15)
+            task.wait(0.2)
             if not st then break end
             pcall(function()
                 local char = LocalPlayer.Character
                 local root = char and char:FindFirstChild("HumanoidRootPart")
                 if not root then return end
+                local targetPos = root.CFrame * CFrame.new(0, 0, -12)
 
                 for _, obj in ipairs(Workspace:GetDescendants()) do
                     if not st then break end
@@ -146,11 +178,47 @@ AddBtn("Aimbot Khóa Tâm Săn Zombux", function(st)
                             for _, p in ipairs(Players:GetPlayers()) do
                                 if p.Character == obj then isPlayer = true end
                             end
-                            if not isPlayer and (hrp.Position - root.Position).Magnitude <= 150 then
-                                Workspace.CurrentCamera.CFrame = CFrame.new(Workspace.CurrentCamera.CFrame.Position, hrp.Position)
-                                break
+                            if not isPlayer then
+                                hrp.CFrame = targetPos
+                                hrp.Velocity = Vector3.new(0, 0, 0)
                             end
                         end
+                    end
+                end
+            end)
+        end
+    end)
+end)
+
+AddBtn("Fast Attack Melee (Chém Không Hồi Chiêu)", function(st)
+    task.spawn(function()
+        while st do
+            task.wait(0.03)
+            if not st then break end
+            pcall(function()
+                local char = LocalPlayer.Character
+                if char then
+                    local tool = char:FindFirstChildOfClass("Tool")
+                    if tool then
+                        tool:Activate()
+                    end
+                end
+            end)
+        end
+    end)
+end)
+
+AddBtn("Súng 0 Giây Nạp Đạn & Đạn Vô Hạn", function(st)
+    task.spawn(function()
+        while st do
+            task.wait(0.5)
+            if not st then break end
+            pcall(function()
+                for _, v in ipairs(getgc(true)) do
+                    if type(v) == "table" then
+                        if rawget(v, "ReloadTime") then v.ReloadTime = 0 end
+                        if rawget(v, "Ammo") then v.Ammo = 999 end
+                        if rawget(v, "MaxAmmo") then v.MaxAmmo = 999 end
                     end
                 end
             end)
@@ -162,14 +230,12 @@ local trueGodConn = nil
 AddBtn("Bất Tử (Safe GodMode)", function(st)
     if st then
         if trueGodConn then trueGodConn:Disconnect() end
-        trueGodConn = RunService.RenderStepped:Connect(function()
+        trueGodConn = RunService.Stepped:Connect(function()
             pcall(function()
                 local char = LocalPlayer.Character
                 local hum = char and char:FindFirstChildOfClass("Humanoid")
                 if hum then
-                    if hum.Health < hum.MaxHealth then
-                        hum.Health = hum.MaxHealth
-                    end
+                    hum.Health = hum.MaxHealth
                 end
             end)
         end)
@@ -218,7 +284,6 @@ AddBtn("Cơ Chế Bay (Fly V3 Chuẩn)", function(st)
             clsBtn.MouseButton1Click:Connect(function() flyActive = false if flyGui then flyGui:Destroy() end end)
 
             task.spawn(function()
-                local bv, bg
                 local keys = {W = false, S = false, A = false, D = false, Space = false, Shift = false}
                 local ib = UserInputService.InputBegan:Connect(function(i)
                     if i.KeyCode == Enum.KeyCode.W then keys.W = true elseif i.KeyCode == Enum.KeyCode.S then keys.S = true
@@ -238,29 +303,30 @@ AddBtn("Cơ Chế Bay (Fly V3 Chuẩn)", function(st)
                         local root = char and char:FindFirstChild("HumanoidRootPart")
                         local hum = char and char:FindFirstChild("Humanoid")
                         if root and hum and hum.Health > 0 then
-                            if not bv then bv = Instance.new("BodyVelocity", root) bv.MaxForce = Vector3.new(1e9, 1e9, 1e9) end
-                            if not bg then bg = Instance.new("BodyGyro", root) bg.MaxTorque = Vector3.new(1e9, 1e9, 1e9) end
+                            hum.PlatformStand = true
                             local cam = Workspace.CurrentCamera.CFrame
-                            local mv = Vector3.new()
-                            if keys.W then mv = mv + cam.LookVector end
-                            if keys.S then mv = mv - cam.LookVector end
-                            if keys.A then mv = mv - cam.RightVector end
-                            if keys.D then mv = mv + cam.RightVector end
-                            if keys.Space then mv = mv + Vector3.new(0, 1, 0) end
-                            if keys.Shift then mv = mv - Vector3.new(0, 1, 0) end
-                            bv.Velocity = mv * flySpd
-                            bg.CFrame = cam
+                            local moveDir = Vector3.new()
+                            if keys.W then moveDir = moveDir + cam.LookVector end
+                            if keys.S then moveDir = moveDir - cam.LookVector end
+                            if keys.A then moveDir = moveDir - cam.RightVector end
+                            if keys.D then moveDir = moveDir + cam.RightVector end
+                            if keys.Space then moveDir = moveDir + Vector3.new(0, 1, 0) end
+                            if keys.Shift then moveDir = moveDir - Vector3.new(0, 1, 0) end
+                            
+                            root.Velocity = Vector3.new(0, 0, 0)
+                            root.CFrame = root.CFrame + (moveDir * (flySpd * 0.05))
                         else
                             flyActive = false
                         end
                     end)
                 end
                 if ib then ib:Disconnect() end if ie then ie:Disconnect() end
-                if bv then bv:Destroy() end if bg then bg:Destroy() end
+                pcall(function() LocalPlayer.Character.Humanoid.PlatformStand = false end)
             end)
         else
             flyActive = false
             if flyGui then flyGui:Destroy() end
+            pcall(function() LocalPlayer.Character.Humanoid.PlatformStand = false end)
         end
     end)
 end)
@@ -338,37 +404,6 @@ SpeedBar.FocusLost:Connect(function()
             end
         end)
     end
-end)
-
-AddBtn("Kéo Giãn Hitbox Zombie (1000 Studs)", function(st)
-    task.spawn(function()
-        while st do
-            task.wait(1)
-            if not st then break end
-            pcall(function()
-                for _, obj in ipairs(Workspace:GetDescendants()) do
-                    if not st then break end
-                    if obj:IsA("Model") and obj ~= LocalPlayer.Character then
-                        local hum = obj:FindFirstChildOfClass("Humanoid")
-                        if hum then
-                            local isPlayer = false
-                            for _, p in ipairs(Players:GetPlayers()) do
-                                if p.Character == obj then isPlayer = true end
-                            end
-                            if not isPlayer then
-                                local mr = obj:FindFirstChild("HumanoidRootPart") or obj:FindFirstChild("Head")
-                                if mr then
-                                    mr.Size = Vector3.new(25, 25, 25)
-                                    mr.Transparency = 0.5
-                                    mr.CanCollide = false
-                                end
-                            end
-                        end
-                    end
-                end
-            end)
-        end
-    end)
 end)
 
 AddBtn("Anti-AFK (Treo Máy 24/7)", function(st)
