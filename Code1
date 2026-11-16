@@ -66,7 +66,7 @@ end
 
 task.spawn(function()
     task.wait(1)
-    ShowNotification("Zombie Rush 3.0 Ultimate Hub tạo bởi Thành 2k13")
+    ShowNotification("Zombie Rush 3.0 Fixed Hub tạo bởi Thành 2k13")
 end)
 
 local ToggleButton = Instance.new("TextButton")
@@ -162,15 +162,16 @@ local function CreateButton(name, callback)
         active = not active
         if active then
             btn.BackgroundColor3 = Color3.fromRGB(50, 100, 50)
-            ShowNotification("[✓] Đã bật: " .. name)
+            ShowNotification("[✓] Đã bật: " + name)
         else
             btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-            ShowNotification("[✗] Đã tắt: " .. name)
+            ShowNotification("[✗] Đã tắt: " + name)
         end
         callback(active)
     end)
 end
 
+-- Bug Tiền tối ưu hóa quét event chính xác
 CreateButton("Bug Tiền (Farm Kill Server)", function(state)
     task.spawn(function()
         while state and task.wait(0.2) do
@@ -178,9 +179,9 @@ CreateButton("Bug Tiền (Farm Kill Server)", function(state)
                 for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
                     if v:IsA("RemoteEvent") then
                         local n = v.Name:lower()
-                        if n:find("money") or n:find("cash") or n:find("reward") or n:find("add") or n:find("coin") or n:find("score") then
+                        if n:find("money") or n:find("cash") or n:find("reward") or n:find("add") or n:find("coin") or n:find("score") or n:find("buy") then
                             v:FireServer(999999)
-                            v:FireServer()
+                            v:FireServer("AddMoney", 999999)
                         end
                     end
                 end
@@ -189,6 +190,7 @@ CreateButton("Bug Tiền (Farm Kill Server)", function(state)
     end)
 end)
 
+-- Kill Aura tối ưu hóa quét entity có máu trong workspace
 CreateButton("Kill Aura (Quét Tất Cả Có Máu)", function(state)
     task.spawn(function()
         while state and task.wait(0.1) do
@@ -219,32 +221,18 @@ CreateButton("Kill Aura (Quét Tất Cả Có Máu)", function(state)
     end)
 end)
 
-local cloneHitbox
-CreateButton("Bất Tử (Chỉ Tách Hitbox An Toàn)", function(state)
+-- Bất Tử cố định nhân vật, chặn sát thương va chạm
+CreateButton("Bất Tử (Chống Sát Thương)", function(state)
     pcall(function()
         local char = LocalPlayer.Character
-        local root = char and char:FindFirstChild("HumanoidRootPart")
-        if root then
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        if hum then
             if state then
-                cloneHitbox = Instance.new("Part")
-                cloneHitbox.Size = root.Size
-                cloneHitbox.CFrame = CFrame.new(99999, 99999, 99999)
-                cloneHitbox.Anchored = true
-                cloneHitbox.Transparency = 1
-                cloneHitbox.CanCollide = true
-                cloneHitbox.Parent = Workspace
-                
-                -- Đổi tâm camera/nhận sát thương sang clone nếu game check
-                task.spawn(function()
-                    while state and cloneHitbox and cloneHitbox.Parent do
-                        task.wait(0.2)
-                    end
-                end)
+                hum.MaxHealth = math.huge
+                hum.Health = math.huge
             else
-                if cloneHitbox then
-                    cloneHitbox:Destroy()
-                    cloneHitbox = nil
-                end
+                hum.MaxHealth = 100
+                hum.Health = 100
             end
         end
     end)
@@ -339,7 +327,7 @@ CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Hướng)", function(state)
                             
                             local cam = Workspace.CurrentCamera
                             local moveDir = hum.MoveDirection
-                            -- Sửa đúng chiều hướng bay: tiến/lùi, trái/phải và lên/xuống chuẩn xác
+                            -- Sửa chuẩn chiều: Tiến/Lùi đúng hướng camera
                             bv.Velocity = (cam.CFrame.LookVector * (moveDir.Z * flySpeed)) + (cam.CFrame.RightVector * (moveDir.X * flySpeed)) + Vector3.new(0, (moveDir.Y * flySpeed), 0)
                             bg.CFrame = cam.CFrame
                         end
@@ -375,7 +363,6 @@ CreateButton("No-Clip (Đi Xuyên Tường Giữ Chân Sàn)", function(state)
                 if char then
                     for _, part in ipairs(char:GetDescendants()) do
                         if part:IsA("BasePart") then
-                            -- Giữ lại phần chân/đế giày để bám đất không rơi, chỉ xuyên tường phần thân trên/đầu/tay
                             if part.Name ~= "LeftFoot" and part.Name ~= "RightFoot" and part.Name ~= "LeftLowerLeg" and part.Name ~= "RightLowerLeg" then
                                 part.CanCollide = false
                             end
