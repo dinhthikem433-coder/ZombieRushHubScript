@@ -66,7 +66,7 @@ end
 
 task.spawn(function()
     task.wait(1)
-    ShowNotification("Zombie Rush 3.0 Free Hub tạo bởi Thành 2k13")
+    ShowNotification("Zombie Rush 3.0 Ultimate Hub tạo bởi Thành 2k13")
 end)
 
 local ToggleButton = Instance.new("TextButton")
@@ -175,9 +175,13 @@ CreateButton("Bug Tiền (Farm Kill Server)", function(state)
     task.spawn(function()
         while state and task.wait(0.2) do
             pcall(function()
-                for _, rem in ipairs(ReplicatedStorage:GetDescendants()) do
-                    if rem:IsA("RemoteEvent") and (rem.Name:lower():find("money") or rem.Name:lower():find("cash") or rem.Name:lower():find("reward") or rem.Name:lower():find("add")) then
-                        rem:FireServer(999999)
+                for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
+                    if v:IsA("RemoteEvent") then
+                        local n = v.Name:lower()
+                        if n:find("money") or n:find("cash") or n:find("reward") or n:find("add") or n:find("coin") or n:find("score") then
+                            v:FireServer(999999)
+                            v:FireServer()
+                        end
                     end
                 end
             end)
@@ -196,10 +200,14 @@ CreateButton("Kill Aura (Quét Tất Cả Có Máu)", function(state)
                 for _, v in ipairs(Workspace:GetDescendants()) do
                     if v:FindFirstChild("Humanoid") and v ~= char and v.Humanoid.Health > 0 then
                         local mRoot = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head")
-                        if mRoot and (mRoot.Position - root.Position).Magnitude <= 1500 then
+                        if mRoot and (mRoot.Position - root.Position).Magnitude <= 2000 then
                             for _, rem in ipairs(ReplicatedStorage:GetDescendants()) do
-                                if rem:IsA("RemoteEvent") and (rem.Name:lower():find("hit") or rem.Name:lower():find("damage") or rem.Name:lower():find("attack") or rem.Name:lower():find("shot")) then
-                                    rem:FireServer(v, 99999)
+                                if rem:IsA("RemoteEvent") then
+                                    local rn = rem.Name:lower()
+                                    if rn:find("hit") or rn:find("damage") or rn:find("attack") or rn:find("shot") or rn:find("gun") or rn:find("kill") then
+                                        rem:FireServer(v, 99999)
+                                        rem:FireServer(v.Humanoid, 99999)
+                                    end
                                 end
                             end
                             v.Humanoid.Health = 0
@@ -211,29 +219,31 @@ CreateButton("Kill Aura (Quét Tất Cả Có Máu)", function(state)
     end)
 end)
 
-local savedPosImmortal
-CreateButton("Bất Tử (Tách Hitbox An Toàn)", function(state)
+local cloneHitbox
+CreateButton("Bất Tử (Chỉ Tách Hitbox An Toàn)", function(state)
     pcall(function()
         local char = LocalPlayer.Character
         local root = char and char:FindFirstChild("HumanoidRootPart")
         if root then
             if state then
-                savedPosImmortal = root.CFrame
+                cloneHitbox = Instance.new("Part")
+                cloneHitbox.Size = root.Size
+                cloneHitbox.CFrame = CFrame.new(99999, 99999, 99999)
+                cloneHitbox.Anchored = true
+                cloneHitbox.Transparency = 1
+                cloneHitbox.CanCollide = true
+                cloneHitbox.Parent = Workspace
+                
+                -- Đổi tâm camera/nhận sát thương sang clone nếu game check
                 task.spawn(function()
-                    while state do
-                        task.wait(0.1)
-                        pcall(function()
-                            if root and root.Parent then
-                                root.CFrame = CFrame.new(99999, 99999, 99999)
-                                root.Velocity = Vector3.new(0, 0, 0)
-                            end
-                        end)
+                    while state and cloneHitbox and cloneHitbox.Parent do
+                        task.wait(0.2)
                     end
                 end)
             else
-                if savedPosImmortal then
-                    root.CFrame = savedPosImmortal
-                    savedPosImmortal = nil
+                if cloneHitbox then
+                    cloneHitbox:Destroy()
+                    cloneHitbox = nil
                 end
             end
         end
@@ -242,7 +252,7 @@ end)
 
 local flyGuiV3
 local flySpeed = 50
-CreateButton("Cơ Chế Bay (Fly V3 Pro Anti-Cheat)", function(state)
+CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Hướng)", function(state)
     task.spawn(function()
         if state then
             if flyGuiV3 then flyGuiV3:Destroy() end
@@ -329,7 +339,8 @@ CreateButton("Cơ Chế Bay (Fly V3 Pro Anti-Cheat)", function(state)
                             
                             local cam = Workspace.CurrentCamera
                             local moveDir = hum.MoveDirection
-                            bv.Velocity = (cam.CFrame.LookVector * (moveDir.Z * -flySpeed)) + (cam.CFrame.RightVector * (moveDir.X * flySpeed)) + Vector3.new(0, (moveDir.Y * flySpeed), 0)
+                            -- Sửa đúng chiều hướng bay: tiến/lùi, trái/phải và lên/xuống chuẩn xác
+                            bv.Velocity = (cam.CFrame.LookVector * (moveDir.Z * flySpeed)) + (cam.CFrame.RightVector * (moveDir.X * flySpeed)) + Vector3.new(0, (moveDir.Y * flySpeed), 0)
                             bg.CFrame = cam.CFrame
                         end
                     end)
@@ -355,7 +366,7 @@ CreateButton("Cơ Chế Bay (Fly V3 Pro Anti-Cheat)", function(state)
     end)
 end)
 
-CreateButton("No-Clip (Chỉ Xuyên Tường Trước Mặt)", function(state)
+CreateButton("No-Clip (Đi Xuyên Tường Giữ Chân Sàn)", function(state)
     local noclipConnection
     if state then
         noclipConnection = RunService.Stepped:Connect(function()
@@ -363,8 +374,11 @@ CreateButton("No-Clip (Chỉ Xuyên Tường Trước Mặt)", function(state)
                 local char = LocalPlayer.Character
                 if char then
                     for _, part in ipairs(char:GetDescendants()) do
-                        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and part.Name ~= "LeftFoot" and part.Name ~= "RightFoot" and part.Name ~= "LeftLowerLeg" and part.Name ~= "RightLowerLeg" then
-                            part.CanCollide = false
+                        if part:IsA("BasePart") then
+                            -- Giữ lại phần chân/đế giày để bám đất không rơi, chỉ xuyên tường phần thân trên/đầu/tay
+                            if part.Name ~= "LeftFoot" and part.Name ~= "RightFoot" and part.Name ~= "LeftLowerLeg" and part.Name ~= "RightLowerLeg" then
+                                part.CanCollide = false
+                            end
                         end
                     end
                 end
