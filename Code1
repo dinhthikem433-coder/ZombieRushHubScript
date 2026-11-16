@@ -66,7 +66,7 @@ end
 
 task.spawn(function()
     task.wait(1)
-    ShowNotification("Zombie Rush 3.0 Fixed Hub tạo bởi Thành 2k13")
+    ShowNotification("Zombie Rush 3.0 Pro tạo bởi Thành 2k13")
 end)
 
 local ToggleButton = Instance.new("TextButton")
@@ -162,16 +162,15 @@ local function CreateButton(name, callback)
         active = not active
         if active then
             btn.BackgroundColor3 = Color3.fromRGB(50, 100, 50)
-            ShowNotification("[✓] Đã bật: " + name)
+            ShowNotification("[✓] Đã bật: " .. name)
         else
             btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-            ShowNotification("[✗] Đã tắt: " + name)
+            ShowNotification("[✗] Đã tắt: " .. name)
         end
         callback(active)
     end)
 end
 
--- Bug Tiền tối ưu hóa quét event chính xác
 CreateButton("Bug Tiền (Farm Kill Server)", function(state)
     task.spawn(function()
         while state and task.wait(0.2) do
@@ -179,9 +178,10 @@ CreateButton("Bug Tiền (Farm Kill Server)", function(state)
                 for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
                     if v:IsA("RemoteEvent") then
                         local n = v.Name:lower()
-                        if n:find("money") or n:find("cash") or n:find("reward") or n:find("add") or n:find("coin") or n:find("score") or n:find("buy") then
+                        if n:find("money") or n:find("cash") or n:find("reward") or n:find("add") or n:find("coin") or n:find("score") or n:find("give") then
                             v:FireServer(999999)
-                            v:FireServer("AddMoney", 999999)
+                            v:FireServer("AddCash", 999999)
+                            v:FireServer(LocalPlayer, 999999)
                         end
                     end
                 end
@@ -190,8 +190,7 @@ CreateButton("Bug Tiền (Farm Kill Server)", function(state)
     end)
 end)
 
--- Kill Aura tối ưu hóa quét entity có máu trong workspace
-CreateButton("Kill Aura (Quét Tất Cả Có Máu)", function(state)
+CreateButton("Kill Aura (Quét Sạch Zombie)", function(state)
     task.spawn(function()
         while state and task.wait(0.1) do
             pcall(function()
@@ -200,19 +199,28 @@ CreateButton("Kill Aura (Quét Tất Cả Có Máu)", function(state)
                 if not root then return end
                 
                 for _, v in ipairs(Workspace:GetDescendants()) do
-                    if v:FindFirstChild("Humanoid") and v ~= char and v.Humanoid.Health > 0 then
-                        local mRoot = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head")
-                        if mRoot and (mRoot.Position - root.Position).Magnitude <= 2000 then
-                            for _, rem in ipairs(ReplicatedStorage:GetDescendants()) do
-                                if rem:IsA("RemoteEvent") then
-                                    local rn = rem.Name:lower()
-                                    if rn:find("hit") or rn:find("damage") or rn:find("attack") or rn:find("shot") or rn:find("gun") or rn:find("kill") then
-                                        rem:FireServer(v, 99999)
-                                        rem:FireServer(v.Humanoid, 99999)
+                    if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+                        local isPlayer = false
+                        for _, p in ipairs(Players:GetPlayers()) do
+                            if p.Character == v then
+                                isPlayer = true
+                                break
+                            end
+                        end
+                        
+                        if not isPlayer then
+                            local mRoot = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head")
+                            if mRoot and (mRoot.Position - root.Position).Magnitude <= 2000 then
+                                for _, rem in ipairs(ReplicatedStorage:GetDescendants()) do
+                                    if rem:IsA("RemoteEvent") then
+                                        local rn = rem.Name:lower()
+                                        if rn:find("hit") or rn:find("damage") or rn:find("attack") or rn:find("shot") or rn:find("gun") or rn:find("kill") then
+                                            rem:FireServer(v, 99999)
+                                        end
                                     end
                                 end
+                                v.Humanoid.Health = 0
                             end
-                            v.Humanoid.Health = 0
                         end
                     end
                 end
@@ -221,18 +229,28 @@ CreateButton("Kill Aura (Quét Tất Cả Có Máu)", function(state)
     end)
 end)
 
--- Bất Tử cố định nhân vật, chặn sát thương va chạm
-CreateButton("Bất Tử (Chống Sát Thương)", function(state)
+CreateButton("Bất Tử (Chống Sát Thương Tuyệt Đối)", function(state)
     pcall(function()
         local char = LocalPlayer.Character
-        local hum = char and char:FindFirstChildOfClass("Humanoid")
-        if hum then
+        if char then
             if state then
-                hum.MaxHealth = math.huge
-                hum.Health = math.huge
+                if not char:FindFirstChildOfClass("ForceField") then
+                    Instance.new("ForceField", char)
+                end
+                local hum = char:FindFirstChildOfClass("Humanoid")
+                if hum then
+                    hum.MaxHealth = math.huge
+                    hum.Health = math.huge
+                end
             else
-                hum.MaxHealth = 100
-                hum.Health = 100
+                for _, ff in ipairs(char:GetChildren()) do
+                    if ff:IsA("ForceField") then ff:Destroy() end
+                end
+                local hum = char:FindFirstChildOfClass("Humanoid")
+                if hum then
+                    hum.MaxHealth = 100
+                    hum.Health = 100
+                end
             end
         end
     end)
@@ -240,7 +258,7 @@ end)
 
 local flyGuiV3
 local flySpeed = 50
-CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Hướng)", function(state)
+CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Chiều)", function(state)
     task.spawn(function()
         if state then
             if flyGuiV3 then flyGuiV3:Destroy() end
@@ -261,7 +279,7 @@ CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Hướng)", function(state)
             local titleFly = Instance.new("TextLabel")
             titleFly.Size = UDim2.new(1, 0, 0, 28)
             titleFly.BackgroundTransparency = 1
-            titleFly.Text = "FLY GUI V3 (3.0)"
+            titleFly.Text = "FLY GUI V3 (FIXED)"
             titleFly.TextColor3 = Color3.fromRGB(255, 255, 255)
             titleFly.Font = Enum.Font.SourceSansBold
             titleFly.TextSize = 12
@@ -327,7 +345,6 @@ CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Hướng)", function(state)
                             
                             local cam = Workspace.CurrentCamera
                             local moveDir = hum.MoveDirection
-                            -- Sửa chuẩn chiều: Tiến/Lùi đúng hướng camera
                             bv.Velocity = (cam.CFrame.LookVector * (moveDir.Z * flySpeed)) + (cam.CFrame.RightVector * (moveDir.X * flySpeed)) + Vector3.new(0, (moveDir.Y * flySpeed), 0)
                             bg.CFrame = cam.CFrame
                         end
@@ -446,11 +463,21 @@ CreateButton("Kéo Giãn Hitbox Zombie (1000 Studs)", function(state)
             pcall(function()
                 for _, v in ipairs(Workspace:GetDescendants()) do
                     if v:FindFirstChild("Humanoid") and v ~= LocalPlayer.Character then
-                        local mRoot = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head")
-                        if mRoot then
-                            mRoot.Size = Vector3.new(25, 25, 25)
-                            mRoot.Transparency = 0.5
-                            mRoot.CanCollide = false
+                        local isPlayer = false
+                        for _, p in ipairs(Players:GetPlayers()) do
+                            if p.Character == v then
+                                isPlayer = true
+                                break
+                            end
+                        end
+                        
+                        if not isPlayer then
+                            local mRoot = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head")
+                            if mRoot then
+                                mRoot.Size = Vector3.new(25, 25, 25)
+                                mRoot.Transparency = 0.5
+                                mRoot.CanCollide = false
+                            end
                         end
                     end
                 end
