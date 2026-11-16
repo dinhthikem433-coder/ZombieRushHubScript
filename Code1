@@ -52,37 +52,64 @@ local function ShowNotif(msg)
     end)
 end
 
+-- HIỆU ỨNG PHÁO HOA HOHO HUB V4 ĐÃ FIX CHUẨN 100%
 task.spawn(function()
     local colors = {Color3.fromRGB(255, 50, 50), Color3.fromRGB(50, 255, 50), Color3.fromRGB(50, 150, 255), Color3.fromRGB(255, 220, 50), Color3.fromRGB(255, 100, 255)}
-    for i = 1, 35 do
+    
+    for rocket = 1, 5 do
         task.spawn(function()
-            local dot = Instance.new("Frame")
-            dot.Size = UDim2.new(0, math.random(6, 12), 0, math.random(6, 12))
-            dot.AnchorPoint = Vector2.new(0.5, 0.5)
-            dot.Position = UDim2.new(0.5, 0, 0.5, 0)
-            dot.BackgroundColor3 = colors[math.random(1, #colors)]
-            dot.BorderSizePixel = 0
-            dot.Parent = ScreenGui
-            Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
+            local startXFraction = math.random(30, 70) / 100
+            local rocketPart = Instance.new("Frame")
+            rocketPart.Size = UDim2.new(0, 5, 0, 16)
+            rocketPart.AnchorPoint = Vector2.new(0.5, 0.5)
+            rocketPart.Position = UDim2.new(startXFraction, 0, 1.1, 0)
+            rocketPart.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            rocketPart.BorderSizePixel = 0
+            rocketPart.Parent = ScreenGui
+            Instance.new("UICorner", rocketPart).CornerRadius = UDim.new(1, 0)
 
-            local angle = math.rad(math.random(0, 360))
-            local dist = math.random(80, 280)
-            local targetX = math.cos(angle) * dist
-            local targetY = math.sin(angle) * dist
+            local peakYFraction = math.random(25, 45) / 100
+            local infoUp = TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+            local twUp = TweenService:Create(rocketPart, infoUp, {Position = UDim2.new(startXFraction, 0, peakYFraction, 0)})
+            twUp:Play()
+            twUp.Completed:Wait()
+            
+            local burstX = rocketPart.AbsolutePosition.X + (rocketPart.AbsoluteSize.X / 2)
+            local burstY = rocketPart.AbsolutePosition.Y + (rocketPart.AbsoluteSize.Y / 2)
+            rocketPart:Destroy()
 
-            local info = TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-            local goal = {
-                Position = dot.Position + UDim2.new(0, targetX, 0, targetY),
-                BackgroundTransparency = 1,
-                Size = UDim2.new(0, 2, 0, 2)
-            }
-            TweenService:Create(dot, info, goal):Play()
-            task.wait(0.8)
-            dot:Destroy()
+            -- Bung nở pháo hoa tròn
+            for i = 1, 22 do
+                task.spawn(function()
+                    local p = Instance.new("Frame")
+                    p.Size = UDim2.new(0, 8, 0, 8)
+                    p.AnchorPoint = Vector2.new(0.5, 0.5)
+                    p.Position = UDim2.new(0, burstX, 0, burstY)
+                    p.BackgroundColor3 = colors[math.random(1, #colors)]
+                    p.BorderSizePixel = 0
+                    p.Parent = ScreenGui
+                    Instance.new("UICorner", p).CornerRadius = UDim.new(1, 0)
+
+                    local angle = math.rad(math.random(0, 360))
+                    local dist = math.random(60, 180)
+                    local targetX = math.cos(angle) * dist
+                    local targetY = math.sin(angle) * dist
+
+                    local infoBurst = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                    TweenService:Create(p, infoBurst, {
+                        Position = p.Position + UDim2.new(0, targetX, 0, targetY),
+                        BackgroundTransparency = 1,
+                        Size = UDim2.new(0, 2, 0, 2)
+                    }):Play()
+                    task.wait(0.7)
+                    p:Destroy()
+                end)
+            end
         end)
+        task.wait(0.15)
     end
-    task.wait(0.5)
-    ShowNotif("Zombie Rush v4.0 Ultra tạo bởi Thành 2k13")
+    task.wait(0.8)
+    ShowNotif("Zombie Rush HoHo Fireworks v4.3 tạo bởi Thành 2k13")
 end)
 
 local ToggleBtn = Instance.new("TextButton")
@@ -155,10 +182,10 @@ local function AddBtn(name, callback)
     end)
 end
 
-AddBtn("Bring Mob (Quét 1000 Studs Gom Quái)", function(st)
+AddBtn("Bring Mob (Gom Quái 1000 Studs)", function(st)
     task.spawn(function()
         while st do
-            task.wait(0.15)
+            task.wait(0.1)
             if not st then break end
             pcall(function()
                 local char = LocalPlayer.Character
@@ -166,20 +193,18 @@ AddBtn("Bring Mob (Quét 1000 Studs Gom Quái)", function(st)
                 if not root then return end
                 local targetPos = root.CFrame * CFrame.new(0, 0, -10)
 
-                for _, obj in ipairs(Workspace:GetDescendants()) do
+                for _, obj in ipairs(Workspace:GetChildren()) do
                     if not st then break end
-                    if obj:IsA("Model") and obj ~= char then
-                        local hum = obj:FindFirstChildOfClass("Humanoid")
-                        local hrp = obj:FindFirstChild("HumanoidRootPart") or obj:FindFirstChild("Head")
-                        if hum and hum.Health > 0 and hrp then
-                            local isPlayer = false
-                            for _, p in ipairs(Players:GetPlayers()) do
-                                if p.Character == obj then isPlayer = true end
-                            end
-                            if not isPlayer and (hrp.Position - root.Position).Magnitude <= 1000 then
-                                hrp.CFrame = targetPos
-                                hrp.Velocity = Vector3.new(0, 0, 0)
-                            end
+                    local hum = obj:FindFirstChildOfClass("Humanoid")
+                    local hrp = obj:FindFirstChild("HumanoidRootPart") or obj:FindFirstChild("Head")
+                    if hum and hum.Health > 0 and hrp then
+                        local isPlayer = false
+                        for _, p in ipairs(Players:GetPlayers()) do
+                            if p.Character == obj then isPlayer = true end
+                        end
+                        if not isPlayer and (hrp.Position - root.Position).Magnitude <= 1000 then
+                            hrp.CFrame = targetPos
+                            hrp.Velocity = Vector3.new(0, 0, 0)
                         end
                     end
                 end
@@ -188,10 +213,10 @@ AddBtn("Bring Mob (Quét 1000 Studs Gom Quái)", function(st)
     end)
 end)
 
-AddBtn("Fast Attack Melee (Chém Cực Nhanh)", function(st)
+AddBtn("Fast Attack Melee (Tự Động Chém)", function(st)
     task.spawn(function()
         while st do
-            task.wait(0.02)
+            task.wait(0.03)
             if not st then break end
             pcall(function()
                 local char = LocalPlayer.Character
@@ -199,11 +224,6 @@ AddBtn("Fast Attack Melee (Chém Cực Nhanh)", function(st)
                     local tool = char:FindFirstChildOfClass("Tool")
                     if tool then
                         tool:Activate()
-                        for _, v in ipairs(tool:GetDescendants()) do
-                            if v:IsA("RemoteEvent") then
-                                v:FireServer()
-                            end
-                        end
                     end
                 end
             end)
@@ -211,7 +231,7 @@ AddBtn("Fast Attack Melee (Chém Cực Nhanh)", function(st)
     end)
 end)
 
-AddBtn("Súng 0 Giây Nạp Đạn & Đạn Vô Hạn", function(st)
+AddBtn("Súng 0s Nạp Đạn & Tăng Tốc Bắn", function(st)
     task.spawn(function()
         while st do
             task.wait(0.3)
@@ -226,6 +246,9 @@ AddBtn("Súng 0 Giây Nạp Đạn & Đạn Vô Hạn", function(st)
                                 local name = v.Name:lower()
                                 if name:find("reload") then v.Value = 0 end
                                 if name:find("ammo") or name:find("clip") then v.Value = 999 end
+                                if name:find("fire") or name:find("rate") or name:find("speed") or name:find("delay") then
+                                    v.Value = 0.01
+                                end
                             end
                         end
                     end
@@ -293,6 +316,7 @@ AddBtn("Cơ Chế Bay (Fly V3 Chuẩn)", function(st)
             clsBtn.MouseButton1Click:Connect(function() flyActive = false if flyGui then flyGui:Destroy() end end)
 
             task.spawn(function()
+                local bv, bg
                 local keys = {W = false, S = false, A = false, D = false, Space = false, Shift = false}
                 local ib = UserInputService.InputBegan:Connect(function(i)
                     if i.KeyCode == Enum.KeyCode.W then keys.W = true elseif i.KeyCode == Enum.KeyCode.S then keys.S = true
@@ -312,30 +336,29 @@ AddBtn("Cơ Chế Bay (Fly V3 Chuẩn)", function(st)
                         local root = char and char:FindFirstChild("HumanoidRootPart")
                         local hum = char and char:FindFirstChild("Humanoid")
                         if root and hum and hum.Health > 0 then
-                            hum.PlatformStand = true
+                            if not bv then bv = Instance.new("BodyVelocity", root) bv.MaxForce = Vector3.new(1e9, 1e9, 1e9) end
+                            if not bg then bg = Instance.new("BodyGyro", root) bg.MaxTorque = Vector3.new(1e9, 1e9, 1e9) end
                             local cam = Workspace.CurrentCamera.CFrame
-                            local moveDir = Vector3.new()
-                            if keys.W then moveDir = moveDir + cam.LookVector end
-                            if keys.S then moveDir = moveDir - cam.LookVector end
-                            if keys.A then moveDir = moveDir - cam.RightVector end
-                            if keys.D then moveDir = moveDir + cam.RightVector end
-                            if keys.Space then moveDir = moveDir + Vector3.new(0, 1, 0) end
-                            if keys.Shift then moveDir = moveDir - Vector3.new(0, 1, 0) end
-                            
-                            root.Velocity = Vector3.new(0, 0, 0)
-                            root.CFrame = root.CFrame + (moveDir * (flySpd * 0.05))
+                            local mv = Vector3.new()
+                            if keys.W then mv = mv + cam.LookVector end
+                            if keys.S then mv = mv - cam.LookVector end
+                            if keys.A then mv = mv - cam.RightVector end
+                            if keys.D then mv = mv + cam.RightVector end
+                            if keys.Space then mv = mv + Vector3.new(0, 1, 0) end
+                            if keys.Shift then mv = mv - Vector3.new(0, 1, 0) end
+                            bv.Velocity = mv * flySpd
+                            bg.CFrame = cam
                         else
                             flyActive = false
                         end
                     end)
                 end
                 if ib then ib:Disconnect() end if ie then ie:Disconnect() end
-                pcall(function() LocalPlayer.Character.Humanoid.PlatformStand = false end)
+                if bv then bv:Destroy() end if bg then bg:Destroy() end
             end)
         else
             flyActive = false
             if flyGui then flyGui:Destroy() end
-            pcall(function() LocalPlayer.Character.Humanoid.PlatformStand = false end)
         end
     end)
 end)
@@ -384,22 +407,6 @@ end)
 local SpeedFrame = Instance.new("Frame", Container)
 SpeedFrame.Size = UDim2.new(1, 0, 0, 50)
 SpeedFrame.BackgroundTransparency = 1
-
-local SpeedLabel = Instance.new("TextLabel", SpeedFrame)
-SpeedLabel.Size = UDim2.new(1, 0, 0, 20)
-SpeedLabel.BackgroundTransparency = 1
-SpeedLabel.Text = "Tốc độ di chuyển: 16"
-SpeedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-SpeedLabel.Font = Enum.Font.SourceSansBold SpeedLabel.TextSize = 12
-ApplyRainbow(SpeedLabel)
-
-local SpeedBar = Instance.new("TextBox", SpeedFrame)
-SpeedBar.Size = UDim2.new(1, 0, 0, 25)
-SpeedBar.Position = UDim2.new(0, 0, 0, 22)
-SpeedBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-SpeedBar.Text = "16" SpeedBar.TextColor3 = Color3.fromRGB(255, 255, 255)
-SpeedBar.Font = Enum.Font.SourceSansBold SpeedBar.TextSize = 12
-Instance.new("UICorner", SpeedBar).CornerRadius = UDim.new(0, 4)
 
 SpeedBar.FocusLost:Connect(function()
     local val = tonumber(SpeedBar.Text)
