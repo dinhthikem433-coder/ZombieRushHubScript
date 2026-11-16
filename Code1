@@ -159,7 +159,7 @@ task.spawn(function()
     TweenService:Create(bigText, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {TextTransparency = 1}):Play()
     task.wait(0.8)
     bigText:Destroy()
-    ShowNotif("Zombie Rush Ultimate v7.0 Sẵn Sàng!")
+    ShowNotif("Zombie Rush Ultimate v8.5 Sẵn Sàng!")
 end)
 
 local ToggleBtn = Instance.new("TextButton")
@@ -207,7 +207,7 @@ local Container = Instance.new("ScrollingFrame")
 Container.Size = UDim2.new(1, -10, 1, -50)
 Container.Position = UDim2.new(0, 5, 0, 45)
 Container.BackgroundTransparency = 1
-Container.CanvasSize = UDim2.new(0, 0, 0, 1150)
+Container.CanvasSize = UDim2.new(0, 0, 0, 1250)
 Container.ScrollBarThickness = 3
 Container.Parent = Main
 
@@ -243,54 +243,57 @@ bgMusic.Volume = 1
 bgMusic.Looped = true
 bgMusic.Parent = SoundService
 
+local musicActive = false
 AddBtn("Bật / Tắt Nhạc Nền", function(st)
-    if st then bgMusic:Play() else bgMusic:Stop() end
+    musicActive = st
+    if st then
+        bgMusic:Play()
+    else
+        bgMusic:Stop()
+    end
 end)
 
 local MusicFrame = Instance.new("Frame", Container)
-MusicFrame.Size = UDim2.new(1, 0, 0, 60)
+MusicFrame.Size = UDim2.new(1, 0, 0, 100)
 MusicFrame.BackgroundTransparency = 1
 
 local MusicLabel = Instance.new("TextLabel", MusicFrame)
 MusicLabel.Size = UDim2.new(1, 0, 0, 20)
 MusicLabel.BackgroundTransparency = 1
-MusicLabel.Text = "Chọn Bài Hát:"
+MusicLabel.Text = "Chọn 1 trong 6 Bài Nhạc:"
 MusicLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 MusicLabel.Font = Enum.Font.SourceSansBold
 MusicLabel.TextSize = 12
 ApplyRainbow(MusicLabel)
 
-local Song1Btn = Instance.new("TextButton", MusicFrame)
-Song1Btn.Size = UDim2.new(0.48, 0, 0, 30)
-Song1Btn.Position = UDim2.new(0, 0, 0, 25)
-Song1Btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Song1Btn.Text = "Bài 1 (Sôi Động)"
-Song1Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-Song1Btn.Font = Enum.Font.SourceSansBold
-Song1Btn.TextSize = 11
-Instance.new("UICorner", Song1Btn).CornerRadius = UDim.new(0, 4)
-Song1Btn.MouseButton1Click:Connect(function()
-    PlayClickSound()
-    bgMusic.SoundId = "rbxassetid://1849187313"
-    if bgMusic.IsPlaying then bgMusic:Play() end
-    ShowNotif("[♪] Đã chọn Bài 1")
-end)
+local songList = {
+    {"Bài 1 (Sôi Động)", "rbxassetid://1849187313"},
+    {"Bài 2 (Chill)", "rbxassetid://9040375932"},
+    {"Bài 3 (Remix 1)", "rbxassetid://9060817402"},
+    {"Bài 4 (Remix 2)", "rbxassetid://1841603513"},
+    {"Bài 5 (Bản Sếp Gửi 1)", "rbxassetid://1849187313"},
+    {"Bài 6 (Bản Sếp Gửi 2)", "rbxassetid://9040375932"}
+}
 
-local Song2Btn = Instance.new("TextButton", MusicFrame)
-Song2Btn.Size = UDim2.new(0.48, 0, 0, 30)
-Song2Btn.Position = UDim2.new(0.52, 0, 0, 25)
-Song2Btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Song2Btn.Text = "Bài 2 (Chill)"
-Song2Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-Song2Btn.Font = Enum.Font.SourceSansBold
-Song2Btn.TextSize = 11
-Instance.new("UICorner", Song2Btn).CornerRadius = UDim.new(0, 4)
-Song2Btn.MouseButton1Click:Connect(function()
-    PlayClickSound()
-    bgMusic.SoundId = "rbxassetid://9040375932"
-    if bgMusic.IsPlaying then bgMusic:Play() end
-    ShowNotif("[♪] Đã chọn Bài 2")
-end)
+for i, song in ipairs(songList) do
+    local sBtn = Instance.new("TextButton", MusicFrame)
+    sBtn.Size = UDim2.new(0.48, 0, 0, 25)
+    sBtn.Position = UDim2.new((i % 2 == 1) and 0 or 0.52, 0, 0, 25 + (math.floor((i-1)/2) * 28))
+    sBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    sBtn.Text = song[1]
+    sBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    sBtn.Font = Enum.Font.SourceSansBold
+    sBtn.TextSize = 10
+    Instance.new("UICorner", sBtn).CornerRadius = UDim.new(0, 4)
+    sBtn.MouseButton1Click:Connect(function()
+        PlayClickSound()
+        bgMusic.SoundId = song[2]
+        if musicActive then
+            bgMusic:Play()
+        end
+        ShowNotif("[♪] Đã chọn: " .. song[1])
+    end)
+end
 local particleActive = false
 local currentParticleId = "rbxassetid://258124463"
 local particleEmitterObj = nil
@@ -303,9 +306,9 @@ local function UpdateParticleState()
             if particleEmitterObj then particleEmitterObj:Destroy() end
             particleEmitterObj = Instance.new("ParticleEmitter", root)
             particleEmitterObj.Texture = currentParticleId
-            particleEmitterObj.Rate = 20
-            particleEmitterObj.Speed = NumberRange.new(5, 10)
-            particleEmitterObj.Acceleration = Vector3.new(0, -25, 0)
+            particleEmitterObj.Rate = 25
+            particleEmitterObj.Speed = NumberRange.new(5, 12)
+            particleEmitterObj.Acceleration = Vector3.new(0, -35, 0)
             particleEmitterObj.Size = NumberSequence.new(1, 0)
             particleEmitterObj.Lifetime = NumberRange.new(2, 4)
         else
@@ -317,7 +320,7 @@ end
 AddBtn("Bật / Tắt Hiệu Ứng Hạt Rơi", function(st)
     particleActive = st
     UpdateParticleState()
-    ShowNotif(st and "[✓] Đã bật hiệu ứng hạt rơi từ trên xuống" or "[✗] Đã tắt hiệu ứng hạt rơi")
+    ShowNotif(st and "[✓] Đã kích hoạt hiệu ứng rơi từ trên xuống" or "[✗] Đã dừng hiệu ứng rơi")
 end)
 
 LocalPlayer.CharacterAdded:Connect(function()
@@ -359,7 +362,7 @@ for i, pData in ipairs(pTypes) do
         PlayClickSound()
         currentParticleId = pData[2]
         if particleEmitterObj then particleEmitterObj.Texture = currentParticleId end
-        ShowNotif("[✨] Đã đổi hạt rơi thành: " .. pData[1])
+        ShowNotif("[✨] Đã chọn loại: " .. pData[1])
     end)
 end
 
@@ -470,9 +473,11 @@ AddBtn("Aura (Bất Tử & ForceField)", function(st)
     end
 end)
 
-local flyActive, flyGui, flySpeed = false, nil, 50
-AddBtn("Cơ Chế Fly V3 Chuẩn", function(st)
-    flyActive = st
+local flying, ctrl, speeds = false, {f = 0, b = 0, l = 0, r = 0}, 50
+local flyGui = nil
+
+AddBtn("Cơ Chế Fly V3 Gốc Chuẩn", function(st)
+    flying = st
     task.spawn(function()
         if st then
             if flyGui then flyGui:Destroy() end
@@ -488,15 +493,15 @@ AddBtn("Cơ Chế Fly V3 Chuẩn", function(st)
             spdBtn.Size = UDim2.new(0.9, 0, 0, 35)
             spdBtn.Position = UDim2.new(0.05, 0, 0, 10)
             spdBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-            spdBtn.Text = "Tốc độ: " .. flySpeed
+            spdBtn.Text = "Tốc độ: " .. speeds
             spdBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
             spdBtn.Font = Enum.Font.SourceSansBold spdBtn.TextSize = 12
             Instance.new("UICorner", spdBtn).CornerRadius = UDim.new(0, 4)
 
             spdBtn.MouseButton1Click:Connect(function()
                 PlayClickSound()
-                flySpeed = flySpeed + 25 if flySpeed > 150 then flySpeed = 50 end
-                spdBtn.Text = "Tốc độ: " .. flySpeed
+                speeds = speeds + 25 if speeds > 150 then speeds = 50 end
+                spdBtn.Text = "Tốc độ: " .. speeds
             end)
 
             local clsBtn = Instance.new("TextButton", flyGui)
@@ -510,54 +515,71 @@ AddBtn("Cơ Chế Fly V3 Chuẩn", function(st)
 
             clsBtn.MouseButton1Click:Connect(function()
                 PlayClickSound()
-                flyActive = false
+                flying = false
                 if flyGui then flyGui:Destroy() end
             end)
 
             task.spawn(function()
-                local bv, bg
-                local keys = {W = false, S = false, A = false, D = false, Space = false, Shift = false}
-                local ib = UserInputService.InputBegan:Connect(function(i)
-                    if i.KeyCode == Enum.KeyCode.W then keys.W = true elseif i.KeyCode == Enum.KeyCode.S then keys.S = true
-                    elseif i.KeyCode == Enum.KeyCode.A then keys.A = true elseif i.KeyCode == Enum.KeyCode.D then keys.D = true
-                    elseif i.KeyCode == Enum.KeyCode.Space then keys.Space = true elseif i.KeyCode == Enum.KeyCode.LeftShift then keys.Shift = true end
-                end)
-                local ie = UserInputService.InputEnded:Connect(function(i)
-                    if i.KeyCode == Enum.KeyCode.W then keys.W = false elseif i.KeyCode == Enum.KeyCode.S then keys.S = false
-                    elseif i.KeyCode == Enum.KeyCode.A then keys.A = false elseif i.KeyCode == Enum.KeyCode.D then keys.D = false
-                    elseif i.KeyCode == Enum.KeyCode.Space then keys.Space = false elseif i.KeyCode == Enum.KeyCode.LeftShift then keys.Shift = false end
-                end)
-
-                while flyActive and st do
-                    RunService.RenderStepped:Wait()
-                    pcall(function()
-                        local char = LocalPlayer.Character
-                        local root = char and char:FindFirstChild("HumanoidRootPart")
-                        local hum = char and char:FindFirstChild("Humanoid")
-                        if root and hum and hum.Health > 0 then
-                            if not bv then bv = Instance.new("BodyVelocity", root) bv.MaxForce = Vector3.new(1e9, 1e9, 1e9) end
-                            if not bg then bg = Instance.new("BodyGyro", root) bg.MaxTorque = Vector3.new(1e9, 1e9, 1e9) end
-                            local cam = Workspace.CurrentCamera.CFrame
-                            local mv = Vector3.new()
-                            if keys.W then mv = mv + cam.LookVector end
-                            if keys.S then mv = mv - cam.LookVector end
-                            if keys.A then mv = mv - cam.RightVector end
-                            if keys.D then mv = mv + cam.RightVector end
-                            if keys.Space then mv = mv + Vector3.new(0, 1, 0) end
-                            if keys.Shift then mv = mv - Vector3.new(0, 1, 0) end
-                            bv.Velocity = mv * flySpeed
-                            bg.CFrame = cam
-                        else
-                            flyActive = false
+                local lrg
+                local bg, bv
+                local function startFly()
+                    local char = LocalPlayer.Character
+                    if not char then return end
+                    local root = char:FindFirstChild("HumanoidRootPart")
+                    if not root then return end
+                    if bg then bg:Destroy() end
+                    if bv then bv:Destroy() end
+                    bg = Instance.new("BodyGyro", root)
+                    bv = Instance.new("BodyVelocity", root)
+                    bg.P = 9e4
+                    bg.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+                    bg.cframe = root.CFrame
+                    bv.velocity = Vector3.new(0, 0, 0)
+                    bv.maxForce = Vector3.new(9e9, 9e9, 9e9)
+                    lrg = RunService.RenderStepped:Connect(function()
+                        if not flying then
+                            if bg then bg:Destroy() end
+                            if bv then bv:Destroy() end
+                            if lrg then lrg:Disconnect() end
+                            return
                         end
+                        pcall(function()
+                            local hum = char:FindFirstChildOfClass("Humanoid")
+                            if hum then hum.PlatformStand = true end
+                            local cam = Workspace.CurrentCamera
+                            if ctrl.f + ctrl.b ~= 0 or ctrl.l + ctrl.r ~= 0 then
+                                bv.velocity = ((cam.CFrame.LookVector * (ctrl.f + ctrl.b)) + ((cam.CFrame * CFrame.new(ctrl.l + ctrl.r, (ctrl.f + ctrl.b) * 0.2, 0).Position) - cam.CFrame.Position)) * speeds
+                                bg.cframe = cam.CFrame
+                            else
+                                bv.velocity = Vector3.new(0, 0.1, 0)
+                                bg.cframe = cam.CFrame
+                            end
+                        end)
                     end)
                 end
+
+                local ib = UserInputService.InputBegan:Connect(function(i)
+                    if i.KeyCode == Enum.KeyCode.W then ctrl.f = 1 elseif i.KeyCode == Enum.KeyCode.S then ctrl.b = -1
+                    elseif i.KeyCode == Enum.KeyCode.A then ctrl.l = -1 elseif i.KeyCode == Enum.KeyCode.D then ctrl.r = 1 end
+                end)
+                local ie = UserInputService.InputEnded:Connect(function(i)
+                    if i.KeyCode == Enum.KeyCode.W then ctrl.f = 0 elseif i.KeyCode == Enum.KeyCode.S then ctrl.b = 0
+                    elseif i.KeyCode == Enum.KeyCode.A then ctrl.l = 0 elseif i.KeyCode == Enum.KeyCode.D then ctrl.r = 0 end
+                end)
+
+                startFly()
+                while flying and st do
+                    task.wait(0.1)
+                end
                 if ib then ib:Disconnect() end if ie then ie:Disconnect() end
-                if bv then bv:Destroy() end if bg then bg:Destroy() end
+                if lrg then lrg:Disconnect() end
+                if bg then bg:Destroy() end if bv then bv:Destroy() end
+                pcall(function() LocalPlayer.Character.Humanoid.PlatformStand = false end)
             end)
         else
-            flyActive = false
+            flying = false
             if flyGui then flyGui:Destroy() end
+            pcall(function() LocalPlayer.Character.Humanoid.PlatformStand = false end)
         end
     end)
 end)
