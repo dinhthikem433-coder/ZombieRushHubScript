@@ -66,7 +66,7 @@ end
 
 task.spawn(function()
     task.wait(1)
-    ShowNotification("Zombie Rush 3.0 Pro tạo bởi Thành 2k13")
+    ShowNotification("Zombie Rush 3.0 Pro Master tạo bởi Thành 2k13")
 end)
 
 local ToggleButton = Instance.new("TextButton")
@@ -229,27 +229,33 @@ CreateButton("Kill Aura (Quét Sạch Zombie)", function(state)
     end)
 end)
 
+local godConn
 CreateButton("Bất Tử (Chống Sát Thương Tuyệt Đối)", function(state)
     pcall(function()
         local char = LocalPlayer.Character
-        if char then
-            if state then
-                if not char:FindFirstChildOfClass("ForceField") then
-                    Instance.new("ForceField", char)
-                end
-                local hum = char:FindFirstChildOfClass("Humanoid")
-                if hum then
-                    hum.MaxHealth = math.huge
-                    hum.Health = math.huge
-                end
-            else
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        if state then
+            if hum then
+                hum.MaxHealth = math.huge
+                hum.Health = math.huge
+                godConn = hum.HealthChanged:Connect(function()
+                    if hum.Health < hum.MaxHealth then
+                        hum.Health = hum.MaxHealth
+                    end
+                end)
+            end
+            if char and not char:FindFirstChildOfClass("ForceField") then
+                Instance.new("ForceField", char)
+            end
+        else
+            if godConn then godConn:Disconnect() end
+            if hum then
+                hum.MaxHealth = 100
+                hum.Health = 100
+            end
+            if char then
                 for _, ff in ipairs(char:GetChildren()) do
                     if ff:IsA("ForceField") then ff:Destroy() end
-                end
-                local hum = char:FindFirstChildOfClass("Humanoid")
-                if hum then
-                    hum.MaxHealth = 100
-                    hum.Health = 100
                 end
             end
         end
@@ -258,7 +264,7 @@ end)
 
 local flyGuiV3
 local flySpeed = 50
-CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Chiều)", function(state)
+CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Hướng)", function(state)
     task.spawn(function()
         if state then
             if flyGuiV3 then flyGuiV3:Destroy() end
@@ -328,7 +334,7 @@ CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Chiều)", function(state)
                         local char = LocalPlayer.Character
                         local root = char and char:FindFirstChild("HumanoidRootPart")
                         local hum = char and char:FindFirstChild("Humanoid")
-                        if root and hum then
+                        if root and hum and hum.Health > 0 then
                             hum.PlatformStand = true
                             if not bv then
                                 bv = Instance.new("BodyVelocity")
@@ -345,8 +351,11 @@ CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Chiều)", function(state)
                             
                             local cam = Workspace.CurrentCamera
                             local moveDir = hum.MoveDirection
-                            bv.Velocity = (cam.CFrame.LookVector * (moveDir.Z * flySpeed)) + (cam.CFrame.RightVector * (moveDir.X * flySpeed)) + Vector3.new(0, (moveDir.Y * flySpeed), 0)
+                            -- Fix chuẩn xác trục lên/xuống và tiến/lùi theo camera nhìn
+                            bv.Velocity = (cam.CFrame.LookVector * (moveDir.Z * flySpeed)) + (cam.CFrame.RightVector * (moveDir.X * flySpeed)) + (cam.CFrame.UpVector * (moveDir.Y * flySpeed))
                             bg.CFrame = cam.CFrame
+                        else
+                            flyingActive = false
                         end
                     end)
                 end
@@ -358,21 +367,23 @@ CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Chiều)", function(state)
             if flyGuiV3 then flyGuiV3:Destroy() end
             
             pcall(function()
-                local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+                local char = LocalPlayer.Character
+                local hum = char and char:FindFirstChild("Humanoid")
                 if hum then hum.PlatformStand = false end
             end)
         else
             if flyGuiV3 then flyGuiV3:Destroy() end
             pcall(function()
-                local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+                local char = LocalPlayer.Character
+                local hum = char and char:FindFirstChild("Humanoid")
                 if hum then hum.PlatformStand = false end
             end)
         end
     end)
 end)
 
+local noclipConnection
 CreateButton("No-Clip (Đi Xuyên Tường Giữ Chân Sàn)", function(state)
-    local noclipConnection
     if state then
         noclipConnection = RunService.Stepped:Connect(function()
             pcall(function()
@@ -403,8 +414,8 @@ CreateButton("No-Clip (Đi Xuyên Tường Giữ Chân Sàn)", function(state)
     end
 end)
 
+local infJumpConn
 CreateButton("Nhảy Vô Hạn (Infinite Jump)", function(state)
-    local infJumpConn
     if state then
         infJumpConn = UserInputService.JumpRequest:Connect(function()
             pcall(function()
