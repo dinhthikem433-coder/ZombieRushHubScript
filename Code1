@@ -5,7 +5,9 @@ local VirtualUser = game:GetService("VirtualUser")
 local Workspace = game:GetService("Workspace")
 local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+local SoundService = game:GetService("SoundService")
+local Stats = game:GetService("Stats")
 local LocalPlayer = Players.LocalPlayer
 
 if CoreGui:FindFirstChild("RainbowZombieHub") then
@@ -18,6 +20,17 @@ pcall(function() ScreenGui.Parent = CoreGui end)
 if not ScreenGui.Parent then ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.ResetOnSpawn = false
+
+local function PlayClickSound()
+    pcall(function()
+        local s = Instance.new("Sound")
+        s.SoundId = "rbxassetid://9060817402"
+        s.Volume = 0.5
+        s.Parent = ScreenGui
+        s:Play()
+        s.Ended:Connect(function() s:Destroy() end)
+    end)
+end
 
 local function ApplyRainbow(obj)
     task.spawn(function()
@@ -53,6 +66,29 @@ local function ShowNotif(msg)
     end)
 end
 
+-- WIDGET HIỂN THỊ FPS & PING
+local StatsLabel = Instance.new("TextLabel")
+StatsLabel.Size = UDim2.new(0, 160, 0, 25)
+StatsLabel.Position = UDim2.new(0, 20, 0, 75)
+StatsLabel.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+StatsLabel.BackgroundTransparency = 0.4
+StatsLabel.TextColor3 = Color3.fromRGB(0, 255, 128)
+StatsLabel.TextSize = 12
+StatsLabel.Font = Enum.Font.SourceSansBold
+StatsLabel.Parent = ScreenGui
+Instance.new("UICorner", StatsLabel).CornerRadius = UDim.new(0, 4)
+
+task.spawn(function()
+    while task.wait(0.5) do
+        pcall(function()
+            local fps = math.floor(1 / RunService.RenderStepped:Wait())
+            local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+            StatsLabel.Text = " FPS: " .. fps .. " | Ping: " .. ping .. "ms"
+        end)
+    end
+end)
+
+-- PHÁO HOA & CHÀO MỪNG
 task.spawn(function()
     local bigText = Instance.new("TextLabel")
     bigText.Size = UDim2.new(0, 600, 0, 80)
@@ -125,9 +161,8 @@ task.spawn(function()
     TweenService:Create(bigText, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {TextTransparency = 1}):Play()
     task.wait(0.8)
     bigText:Destroy()
-    ShowNotif("Zombie Rush Ultimate Sẵn Sàng!")
+    ShowNotif("Zombie Rush Ultimate v5.0 Sẵn Sàng!")
 end)
-
 local ToggleBtn = Instance.new("TextButton")
 ToggleBtn.Size = UDim2.new(0, 45, 0, 45)
 ToggleBtn.Position = UDim2.new(0, 20, 0, 20)
@@ -140,6 +175,10 @@ ToggleBtn.Draggable = true
 ToggleBtn.Parent = ScreenGui
 Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
 ApplyRainbow(ToggleBtn)
+
+ToggleBtn.MouseButton1Click:Connect(function()
+    PlayClickSound()
+end)
 
 local Main = Instance.new("Frame")
 Main.Size = UDim2.new(0, 280, 0, 520)
@@ -169,7 +208,7 @@ local Container = Instance.new("ScrollingFrame")
 Container.Size = UDim2.new(1, -10, 1, -50)
 Container.Position = UDim2.new(0, 5, 0, 45)
 Container.BackgroundTransparency = 1
-Container.CanvasSize = UDim2.new(0, 0, 0, 750)
+Container.CanvasSize = UDim2.new(0, 0, 0, 950)
 Container.ScrollBarThickness = 3
 Container.Parent = Main
 
@@ -191,6 +230,7 @@ local function AddBtn(name, callback)
 
     local active = false
     b.MouseButton1Click:Connect(function()
+        PlayClickSound()
         active = not active
         b.BackgroundColor3 = active and Color3.fromRGB(50, 100, 50) or Color3.fromRGB(30, 30, 30)
         ShowNotif(active and ("[✓] Bật: " .. name) or ("[✗] Tắt: " .. name))
@@ -198,16 +238,31 @@ local function AddBtn(name, callback)
     end)
 end
 
+-- TÍNH NĂNG NHẠC NỀN (BACKGROUND MUSIC)
+local bgMusic = Instance.new("Sound")
+bgMusic.SoundId = "rbxassetid://1849187313"
+bgMusic.Volume = 1
+bgMusic.Looped = true
+bgMusic.Parent = ScreenGui
+
+AddBtn("Bật / Tắt Nhạc Nền (BGM)", function(st)
+    if st then
+        bgMusic:Play()
+    else
+        bgMusic:Stop()
+    end
+end)
+
 AddBtn("Bring Mob (Gom Quái 1000 Studs)", function(st)
     task.spawn(function()
         while st do
-            task.wait(0.02)
+            task.wait(0.05)
             if not st then break end
             pcall(function()
                 local char = LocalPlayer.Character
                 local root = char and char:FindFirstChild("HumanoidRootPart")
                 if not root then return end
-                local targetPos = root.CFrame * CFrame.new(0, 0, -8)
+                local targetPos = root.CFrame * CFrame.new(0, 0, -6)
 
                 for _, v in ipairs(Workspace:GetDescendants()) do
                     if not st then break end
@@ -234,7 +289,7 @@ end)
 AddBtn("Fast Attack Melee (Tự Động Chém)", function(st)
     task.spawn(function()
         while st do
-            task.wait(0.01)
+            task.wait(0.02)
             if not st then break end
             pcall(function()
                 local char = LocalPlayer.Character
@@ -257,7 +312,7 @@ end)
 AddBtn("Vô Hạn Đạn & Bắn Nhanh Vài Chục Phát/s", function(st)
     task.spawn(function()
         while st do
-            task.wait(0.01)
+            task.wait(0.02)
             if not st then break end
             pcall(function()
                 local char = LocalPlayer.Character
@@ -282,27 +337,19 @@ AddBtn("Vô Hạn Đạn & Bắn Nhanh Vài Chục Phát/s", function(st)
     end)
 end)
 
-AddBtn("Free Shop (Mua Không Mất Tiền)", function(st)
+AddBtn("Free Shop (Mua Không Mất Tiền / Vô Hạn Tiền)", function(st)
     task.spawn(function()
         while st do
-            task.wait(0.1)
+            task.wait(0.5)
             if not st then break end
             pcall(function()
-                for _, v in ipairs(getgc(true)) do
-                    if type(v) == "table" then
-                        if rawget(v, "Cost") then v.Cost = 0 end
-                        if rawget(v, "Price") then v.Price = 0 end
-                        if rawget(v, "Cash") then v.Cash = 0 end
-                        if rawget(v, "Money") then v.Money = 0 end
-                    end
-                end
-                for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
-                    if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
-                        local n = v.Name:lower()
-                        if n:find("buy") or n:find("purchase") or n:find("shop") or n:find("upgrade") then
-                            pcall(function()
-                                v:FireServer(0)
-                            end)
+                for _, p in ipairs(Players:GetPlayers()) do
+                    local stats = p:FindFirstChild("leaderstats") or p:FindFirstChild("Stats")
+                    if stats then
+                        for _, stat in ipairs(stats:GetChildren()) do
+                            if stat.Name:lower():find("money") or stat.Name:lower():find("cash") or stat.Name:lower():find("zombux") then
+                                stat.Value = 999999
+                            end
                         end
                     end
                 end
@@ -335,9 +382,8 @@ AddBtn("Aura", function(st)
         if trueGodConn then trueGodConn:Disconnect() trueGodConn = nil end
     end
 end)
-
 local flyActive, flyGui, flySpd = false, nil, 50
-AddBtn("Cơ Chế Fly (Fly V3 Chuẩn)", function(st)
+AddBtn("Cơ Chế Fly (Fly V3 Chuẩn CFrame)", function(st)
     flyActive = st
     task.spawn(function()
         if st then
@@ -360,6 +406,7 @@ AddBtn("Cơ Chế Fly (Fly V3 Chuẩn)", function(st)
             Instance.new("UICorner", spdBtn).CornerRadius = UDim.new(0, 4)
 
             spdBtn.MouseButton1Click:Connect(function()
+                PlayClickSound()
                 flySpd = flySpd + 25 if flySpd > 150 then flySpd = 25 end
                 spdBtn.Text = "Tốc độ bay: " .. flySpd
             end)
@@ -373,7 +420,11 @@ AddBtn("Cơ Chế Fly (Fly V3 Chuẩn)", function(st)
             clsBtn.Font = Enum.Font.SourceSansBold clsBtn.TextSize = 12
             Instance.new("UICorner", clsBtn).CornerRadius = UDim.new(0, 4)
 
-            clsBtn.MouseButton1Click:Connect(function() flyActive = false if flyGui then flyGui:Destroy() end end)
+            clsBtn.MouseButton1Click:Connect(function() 
+                PlayClickSound()
+                flyActive = false 
+                if flyGui then flyGui:Destroy() end 
+            end)
 
             task.spawn(function()
                 local keys = {W = false, S = false, A = false, D = false, Space = false, Shift = false}
@@ -397,15 +448,15 @@ AddBtn("Cơ Chế Fly (Fly V3 Chuẩn)", function(st)
                         if root and hum and hum.Health > 0 then
                             hum.PlatformStand = true
                             local cam = Workspace.CurrentCamera.CFrame
-                            local mv = Vector3.new()
-                            if keys.W then mv = mv + cam.LookVector end
-                            if keys.S then mv = mv - cam.LookVector end
-                            if keys.A then mv = mv - cam.RightVector end
-                            if keys.D then mv = mv + cam.RightVector end
-                            if keys.Space then mv = mv + Vector3.new(0, 1, 0) end
-                            if keys.Shift then mv = mv - Vector3.new(0, 1, 0) end
-                            
-                            root.CFrame = root.CFrame + (mv * (flySpd * 0.05))
+                            local moveDir = Vector3.new()
+                            if keys.W then moveDir = moveDir + cam.LookVector end
+                            if keys.S then moveDir = moveDir - cam.LookVector end
+                            if keys.A then moveDir = moveDir - cam.RightVector end
+                            if keys.D then moveDir = moveDir + cam.RightVector end
+                            if keys.Space then moveDir = moveDir + Vector3.new(0, 1, 0) end
+                            if keys.Shift then moveDir = moveDir - Vector3.new(0, 1, 0) end
+
+                            root.CFrame = CFrame.new(root.Position + (moveDir * (flySpd * 0.05))) * cam - cam.Position + root.Position
                             root.Velocity = Vector3.new(0, 0, 0)
                         else
                             flyActive = false
@@ -419,6 +470,28 @@ AddBtn("Cơ Chế Fly (Fly V3 Chuẩn)", function(st)
             flyActive = false
             if flyGui then flyGui:Destroy() end
             pcall(function() LocalPlayer.Character.Humanoid.PlatformStand = false end)
+        end
+    end)
+end)
+
+AddBtn("Chế Độ Giảm Lag (FPS Booster)", function(st)
+    task.spawn(function()
+        if st then
+            pcall(function()
+                for _, v in ipairs(Workspace:GetDescendants()) do
+                    if v:IsA("BasePart") and not v:IsDescendantOf(LocalPlayer.Character) then
+                        v.Material = Enum.Material.SmoothPlastic
+                        v.Reflectance = 0
+                    elseif v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Fire") or v:IsA("Smoke") then
+                        v.Enabled = false
+                    end
+                end
+                Lighting.GlobalShadows = false
+                Lighting.FogEnd = 999999
+                ShowNotif("[✓] Đã bật chế độ giảm lag mượt mà!")
+            end)
+        else
+            ShowNotif("[✗] Đã tắt chế độ giảm lag.")
         end
     end)
 end)
@@ -488,6 +561,7 @@ SpeedBar.TextSize = 12
 Instance.new("UICorner", SpeedBar).CornerRadius = UDim.new(0, 4)
 
 SpeedBar.FocusLost:Connect(function()
+    PlayClickSound()
     local val = tonumber(SpeedBar.Text)
     if val then
         pcall(function()
