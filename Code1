@@ -7,7 +7,6 @@ local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
 local Lighting = game:GetService("Lighting")
 local Stats = game:GetService("Stats")
-local SoundService = game:GetService("SoundService")
 local LocalPlayer = Players.LocalPlayer
 
 if CoreGui:FindFirstChild("RainbowZombieHub") then
@@ -159,7 +158,7 @@ task.spawn(function()
     TweenService:Create(bigText, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {TextTransparency = 1}):Play()
     task.wait(0.8)
     bigText:Destroy()
-    ShowNotif("Zombie Rush Ultimate v8.5 Sẵn Sàng!")
+    ShowNotif("Zombie Rush Ultimate v9.0 Sẵn Sàng!")
 end)
 
 local ToggleBtn = Instance.new("TextButton")
@@ -241,7 +240,7 @@ local bgMusic = Instance.new("Sound")
 bgMusic.SoundId = "rbxassetid://1849187313"
 bgMusic.Volume = 1
 bgMusic.Looped = true
-bgMusic.Parent = SoundService
+bgMusic.Parent = ScreenGui
 
 local musicActive = false
 AddBtn("Bật / Tắt Nhạc Nền", function(st)
@@ -271,8 +270,8 @@ local songList = {
     {"Bài 2 (Chill)", "rbxassetid://9040375932"},
     {"Bài 3 (Remix 1)", "rbxassetid://9060817402"},
     {"Bài 4 (Remix 2)", "rbxassetid://1841603513"},
-    {"Bài 5 (Bản Sếp Gửi 1)", "rbxassetid://1849187313"},
-    {"Bài 6 (Bản Sếp Gửi 2)", "rbxassetid://9040375932"}
+    {"Bài 5 (Bản Gửi 1)", "rbxassetid://1849187313"},
+    {"Bài 6 (Bản Gửi 2)", "rbxassetid://9040375932"}
 }
 
 for i, song in ipairs(songList) do
@@ -311,6 +310,7 @@ local function UpdateParticleState()
             particleEmitterObj.Acceleration = Vector3.new(0, -35, 0)
             particleEmitterObj.Size = NumberSequence.new(1, 0)
             particleEmitterObj.Lifetime = NumberRange.new(2, 4)
+            particleEmitterObj.Enabled = true
         else
             if particleEmitterObj then particleEmitterObj:Destroy() particleEmitterObj = nil end
         end
@@ -387,7 +387,7 @@ AddBtn("Bring Mob (Gom Quái)", function(st)
                             for _, p in ipairs(Players:GetPlayers()) do
                                 if p.Character == v then isP = true end
                             end
-                            if not isP and (hrp.Position - root.Position).Magnitude <= 2000 then
+                            if not isP and (hrp.Position - root.Position).Magnitude <= 3000 then
                                 hrp.CFrame = targetPos
                                 hrp.Velocity = Vector3.new(0, 0, 0)
                             end
@@ -427,27 +427,6 @@ AddBtn("Vô Hạn Đạn & Tốc Độ Bắn Cực Đại", function(st)
     end)
 end)
 
-AddBtn("Free Shop (Vô Hạn Tiền)", function(st)
-    task.spawn(function()
-        while st do
-            task.wait(0.5)
-            if not st then break end
-            pcall(function()
-                for _, p in ipairs(Players:GetPlayers()) do
-                    local stats = p:FindFirstChild("leaderstats") or p:FindFirstChild("Stats")
-                    if stats then
-                        for _, stat in ipairs(stats:GetChildren()) do
-                            if stat.Name:lower():find("money") or stat.Name:lower():find("cash") or stat.Name:lower():find("zombux") then
-                                stat.Value = 999999
-                            end
-                        end
-                    end
-                end
-            end)
-        end
-    end)
-end)
-
 local forceFieldObj = nil
 local trueGodConn = nil
 AddBtn("Aura (Bất Tử & ForceField)", function(st)
@@ -473,7 +452,7 @@ AddBtn("Aura (Bất Tử & ForceField)", function(st)
     end
 end)
 
-local flying, ctrl, speeds = false, {f = 0, b = 0, l = 0, r = 0}, 50
+local flying, speeds = false, 50
 local flyGui = nil
 
 AddBtn("Cơ Chế Fly V3 Gốc Chuẩn", function(st)
@@ -547,31 +526,28 @@ AddBtn("Cơ Chế Fly V3 Gốc Chuẩn", function(st)
                             local hum = char:FindFirstChildOfClass("Humanoid")
                             if hum then hum.PlatformStand = true end
                             local cam = Workspace.CurrentCamera
-                            if ctrl.f + ctrl.b ~= 0 or ctrl.l + ctrl.r ~= 0 then
-                                bv.velocity = ((cam.CFrame.LookVector * (ctrl.f + ctrl.b)) + ((cam.CFrame * CFrame.new(ctrl.l + ctrl.r, (ctrl.f + ctrl.b) * 0.2, 0).Position) - cam.CFrame.Position)) * speeds
-                                bg.cframe = cam.CFrame
+                            local moveDir = Vector3.new(0, 0, 0)
+                            if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveDir = moveDir + cam.CFrame.LookVector end
+                            if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveDir = moveDir - cam.CFrame.LookVector end
+                            if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveDir = moveDir - cam.CFrame.RightVector end
+                            if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveDir = moveDir + cam.CFrame.RightVector end
+                            if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveDir = moveDir + Vector3.new(0, 1, 0) end
+                            if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then moveDir = moveDir - Vector3.new(0, 1, 0) end
+
+                            if moveDir.Magnitude > 0 then
+                                bv.velocity = moveDir.Unit * speeds
                             else
                                 bv.velocity = Vector3.new(0, 0.1, 0)
-                                bg.cframe = cam.CFrame
                             end
+                            bg.cframe = cam.CFrame
                         end)
                     end)
                 end
-
-                local ib = UserInputService.InputBegan:Connect(function(i)
-                    if i.KeyCode == Enum.KeyCode.W then ctrl.f = 1 elseif i.KeyCode == Enum.KeyCode.S then ctrl.b = -1
-                    elseif i.KeyCode == Enum.KeyCode.A then ctrl.l = -1 elseif i.KeyCode == Enum.KeyCode.D then ctrl.r = 1 end
-                end)
-                local ie = UserInputService.InputEnded:Connect(function(i)
-                    if i.KeyCode == Enum.KeyCode.W then ctrl.f = 0 elseif i.KeyCode == Enum.KeyCode.S then ctrl.b = 0
-                    elseif i.KeyCode == Enum.KeyCode.A then ctrl.l = 0 elseif i.KeyCode == Enum.KeyCode.D then ctrl.r = 0 end
-                end)
 
                 startFly()
                 while flying and st do
                     task.wait(0.1)
                 end
-                if ib then ib:Disconnect() end if ie then ie:Disconnect() end
                 if lrg then lrg:Disconnect() end
                 if bg then bg:Destroy() end if bv then bv:Destroy() end
                 pcall(function() LocalPlayer.Character.Humanoid.PlatformStand = false end)
@@ -691,6 +667,56 @@ AddBtn("Anti-AFK (Treo Máy 24/7)", function(st)
             task.wait(600)
             if not st then break end
             pcall(function() VirtualUser:CaptureController() VirtualUser:ClickButton2(Vector2.new()) end)
+        end
+    end)
+end)
+local ForceAuthFrame = Instance.new("Frame", Container)
+ForceAuthFrame.Size = UDim2.new(1, 0, 0, 50)
+ForceAuthFrame.BackgroundTransparency = 1
+
+local ForceAuthBtn = Instance.new("TextButton", ForceAuthFrame)
+ForceAuthBtn.Size = UDim2.new(1, 0, 0, 40)
+ForceAuthBtn.Position = UDim2.new(0, 0, 0, 5)
+ForceAuthBtn.BackgroundColor3 = Color3.fromRGB(150, 40, 40)
+ForceAuthBtn.Text = "⚡ Đè Gói Tin Xác Thực (Free Buy All)"
+ForceAuthBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ForceAuthBtn.Font = Enum.Font.SourceSansBold
+ForceAuthBtn.TextSize = 11
+Instance.new("UICorner", ForceAuthBtn).CornerRadius = UDim.new(0, 6)
+ApplyRainbow(ForceAuthBtn)
+
+local forceAuthActive = false
+
+ForceAuthBtn.MouseButton1Click:Connect(function()
+    PlayClickSound()
+    forceAuthActive = not forceAuthActive
+    ForceAuthBtn.BackgroundColor3 = forceAuthActive and Color3.fromRGB(40, 150, 60) or Color3.fromRGB(150, 40, 40)
+    ShowNotif(forceAuthActive and "[✓] Đã kích hoạt đè gói tin xác thực tiền!" or "[✗] Đã tắt đè gói tin.")
+
+    task.spawn(function()
+        while forceAuthActive do
+            task.wait(0.1)
+            if not forceAuthActive then break end
+            pcall(function()
+                for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
+                    if not forceAuthActive then break end
+                    if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
+                        local n = v.Name:lower()
+                        if n:find("shop") or n:find("buy") or n:find("upgrade") or n:find("machine") or n:find("item") or n:find("gun") then
+                            pcall(function()
+                                if v:IsA("RemoteEvent") then
+                                    v:FireServer(true, 999999, "Authorized", true)
+                                    v:FireServer("Buy", true, 999999)
+                                    v:FireServer(1, true, "Valid")
+                                elseif v:IsA("RemoteFunction") then
+                                    v:InvokeServer(true, 999999, "Authorized", true)
+                                    v:InvokeServer("Buy", true, 999999)
+                                end
+                            end)
+                        end
+                    end
+                end
+            end)
         end
     end)
 end)
