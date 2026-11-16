@@ -66,7 +66,7 @@ end
 
 task.spawn(function()
     task.wait(1)
-    ShowNotification("Zombie Rush 3.0 Ultimate Fixed tạo bởi Thành 2k13")
+    ShowNotification("Zombie Rush 3.0 Real Server Hub tạo bởi Thành 2k13")
 end)
 
 local ToggleButton = Instance.new("TextButton")
@@ -177,13 +177,15 @@ CreateButton("Bug Tiền (Farm Kill Server)", function(state)
     if moneyActive then
         task.spawn(function()
             while moneyActive do
-                task.wait(0.2)
+                task.wait(0.3)
                 pcall(function()
                     for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
                         if v:IsA("RemoteEvent") then
                             local n = v.Name:lower()
-                            if n:find("money") or n:find("cash") or n:find("reward") or n:find("add") or n:find("coin") or n:find("score") or n:find("give") then
+                            if n:find("cash") or n:find("money") or n:find("reward") or n:find("point") or n:find("buy") then
+                                v:FireServer("Reward", 999999)
                                 v:FireServer(999999)
+                                v:FireServer("AddCash", 999999)
                             end
                         end
                     end
@@ -222,8 +224,9 @@ CreateButton("Kill Aura (Quét Sạch Zombie)", function(state)
                                     for _, rem in ipairs(ReplicatedStorage:GetDescendants()) do
                                         if rem:IsA("RemoteEvent") then
                                             local rn = rem.Name:lower()
-                                            if rn:find("hit") or rn:find("damage") or rn:find("attack") or rn:find("shot") or rn:find("gun") or rn:find("kill") then
-                                                rem:FireServer(v, 99999)
+                                            if rn:find("gun") or rn:find("shoot") or rn:find("fire") or rn:find("hit") or rn:find("damage") or rn:find("attack") then
+                                                rem:FireServer(v, mRoot.Position, 99999)
+                                                rem:FireServer(v.Humanoid, 99999)
                                             end
                                         end
                                     end
@@ -296,7 +299,7 @@ CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Hướng)", function(state)
             local titleFly = Instance.new("TextLabel")
             titleFly.Size = UDim2.new(1, 0, 0, 28)
             titleFly.BackgroundTransparency = 1
-            titleFly.Text = "FLY GUI V3 (FIXED)"
+            titleFly.Text = "FLY GUI V3 (MASTER)"
             titleFly.TextColor3 = Color3.fromRGB(255, 255, 255)
             titleFly.Font = Enum.Font.SourceSansBold
             titleFly.TextSize = 12
@@ -338,6 +341,26 @@ CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Hướng)", function(state)
 
             task.spawn(function()
                 local bv, bg
+                local keys = {W = false, S = false, A = false, D = false, Space = false, Shift = false}
+                
+                local inputBegan = UserInputService.InputBegan:Connect(function(input, gpe)
+                    if input.KeyCode == Enum.KeyCode.W or input.KeyCode == Enum.KeyCode.Up then keys.W = true end
+                    if input.KeyCode == Enum.KeyCode.S or input.KeyCode == Enum.KeyCode.Down then keys.S = true end
+                    if input.KeyCode == Enum.KeyCode.A or input.KeyCode == Enum.KeyCode.Left then keys.A = true end
+                    if input.KeyCode == Enum.KeyCode.D or input.KeyCode == Enum.KeyCode.Right then keys.D = true end
+                    if input.KeyCode == Enum.KeyCode.Space then keys.Space = true end
+                    if input.KeyCode == Enum.KeyCode.LeftShift then keys.Shift = true end
+                end)
+
+                local inputEnded = UserInputService.InputEnded:Connect(function(input)
+                    if input.KeyCode == Enum.KeyCode.W or input.KeyCode == Enum.KeyCode.Up then keys.W = false end
+                    if input.KeyCode == Enum.KeyCode.S or input.KeyCode == Enum.KeyCode.Down then keys.S = false end
+                    if input.KeyCode == Enum.KeyCode.A or input.KeyCode == Enum.KeyCode.Left then keys.A = false end
+                    if input.KeyCode == Enum.KeyCode.D or input.KeyCode == Enum.KeyCode.Right then keys.D = false end
+                    if input.KeyCode == Enum.KeyCode.Space then keys.Space = false end
+                    if input.KeyCode == Enum.KeyCode.LeftShift then keys.Shift = false end
+                end)
+
                 while flyActiveState and state do
                     task.wait()
                     pcall(function()
@@ -360,22 +383,26 @@ CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Hướng)", function(state)
                             end
                             
                             local cam = Workspace.CurrentCamera
-                            local moveDir = hum.MoveDirection
-                            -- Fix triệt để: Lấy trực tiếp hướng di chuyển thời gian thực theo góc nhìn camera
                             local camCF = cam.CFrame
-                            local flyVector = Vector3.new(0, 0, 0)
+                            local moveVector = Vector3.new(0, 0, 0)
                             
-                            if moveDir.Magnitude > 0 then
-                                flyVector = (camCF.LookVector * moveDir.Z + camCF.RightVector * moveDir.X + Vector3.new(0, moveDir.Y, 0)) * flySpeed
-                            end
+                            if keys.W then moveVector = moveVector + camCF.LookVector end
+                            if keys.S then moveVector = moveVector - camCF.LookVector end
+                            if keys.A then moveVector = moveVector - camCF.RightVector end
+                            if keys.D then moveVector = moveVector + camCF.RightVector end
+                            if keys.Space then moveVector = moveVector + Vector3.new(0, 1, 0) end
+                            if keys.Shift then moveVector = moveVector - Vector3.new(0, 1, 0) end
                             
-                            bv.Velocity = flyVector
+                            bv.Velocity = moveVector * flySpeed
                             bg.CFrame = camCF
                         else
                             flyActiveState = false
                         end
                     end)
                 end
+                
+                if inputBegan then inputBegan:Disconnect() end
+                if inputEnded then inputEnded:Disconnect() end
                 if bv then bv:Destroy() end
                 if bg then bg:Destroy() end
             end)
@@ -464,55 +491,4 @@ SpeedLabel.TextSize = 12
 SpeedLabel.Parent = SpeedFrame
 ApplyRainbow(SpeedLabel)
 
-local SpeedBar = Instance.new("TextBox")
-SpeedBar.Size = UDim2.new(1, -10, 0, 25)
-SpeedBar.Position = UDim2.new(0, 5, 0, 22)
-SpeedBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-SpeedBar.Text = "16"
-SpeedBar.TextColor3 = Color3.fromRGB(255, 255, 255)
-SpeedBar.Font = Enum.Font.SourceSansBold
-SpeedBar.TextSize = 12
-SpeedBar.Parent = SpeedFrame
-Instance.new("UICorner", SpeedBar).CornerRadius = UDim.new(0, 4)
-
-SpeedBar.FocusLost:Connect(function(enterPressed)
-    local val = tonumber(SpeedBar.Text)
-    if val then
-        pcall(function()
-            LocalPlayer.Character.Humanoid.WalkSpeed = val
-            SpeedLabel.Text = "Tốc độ di chuyển: " .. val
-            ShowNotification("[✓] Đã đổi tốc độ thành: " .. val)
-        end)
-    end
-end)
-
-local hitboxActive = false
-CreateButton("Kéo Giãn Hitbox Zombie (1000 Studs)", function(state)
-    hitboxActive = state
-    if hitboxActive then
-        task.spawn(function()
-            while hitboxActive do
-                task.wait(1)
-                pcall(function()
-                    for _, v in ipairs(Workspace:GetDescendants()) do
-                        if not hitboxActive then break end
-                        if v:FindFirstChild("Humanoid") and v ~= LocalPlayer.Character then
-                            local isPlayer = false
-                            for _, p in ipairs(Players:GetPlayers()) do
-                                if p.Character == v then
-                                    isPlayer = true
-                                    break
-                                end
-                            end
-                            
-                            if not isPlayer then
-                                local mRoot = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head")
-                                if mRoot then
-                                    mRoot.Size = Vector3.new(25, 25, 25)
-                                    mRoot.Transparency = 0.5
-                                    mRoot.CanCollide = false
-                                end
-                            end
-                        end
-                    end
-            
+local SpeedBar = Instance.
