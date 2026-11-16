@@ -84,8 +84,8 @@ toggleCorner.CornerRadius = UDim.new(1, 0)
 toggleCorner.Parent = ToggleButton
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 280, 0, 430)
-MainFrame.Position = UDim2.new(0.5, -140, 0.5, -215)
+MainFrame.Size = UDim2.new(0, 280, 0, 480)
+MainFrame.Position = UDim2.new(0.5, -140, 0.5, -240)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
@@ -133,7 +133,7 @@ local Container = Instance.new("ScrollingFrame")
 Container.Size = UDim2.new(1, -10, 1, -65)
 Container.Position = UDim2.new(0, 5, 0, 55)
 Container.BackgroundTransparency = 1
-Container.CanvasSize = UDim2.new(0, 0, 0, 380)
+Container.CanvasSize = UDim2.new(0, 0, 0, 460)
 Container.ScrollBarThickness = 3
 Container.Parent = MainFrame
 
@@ -241,20 +241,14 @@ CreateButton("Bất Tử (Tách Hitbox An Toàn)", function(state)
 end)
 
 local flyGuiV3
-CreateButton("Cơ Chế Bay (Fly V3 + Safe Hitbox)", function(state)
+CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Xác)", function(state)
     task.spawn(function()
         if state then
             if flyGuiV3 then flyGuiV3:Destroy() end
-            
-            local currentPos = CFrame.new(0, 10, 0)
-            pcall(function()
-                local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                if root then currentPos = root.CFrame end
-            end)
 
             flyGuiV3 = Instance.new("Frame")
-            flyGuiV3.Size = UDim2.new(0, 190, 0, 120)
-            flyGuiV3.Position = UDim2.new(1, -210, 0.4, 0)
+            flyGuiV3.Size = UDim2.new(0, 180, 0, 100)
+            flyGuiV3.Position = UDim2.new(1, -200, 0.4, 0)
             flyGuiV3.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
             flyGuiV3.BorderSizePixel = 0
             flyGuiV3.Active = true
@@ -268,36 +262,18 @@ CreateButton("Cơ Chế Bay (Fly V3 + Safe Hitbox)", function(state)
             local titleFly = Instance.new("TextLabel")
             titleFly.Size = UDim2.new(1, 0, 0, 30)
             titleFly.BackgroundTransparency = 1
-            titleFly.Text = "FLY GUI V3 (ZOMBIE 2.9)"
+            titleFly.Text = "FLY GUI V3 (2.9)"
             titleFly.TextColor3 = Color3.fromRGB(255, 255, 255)
             titleFly.Font = Enum.Font.SourceSansBold
             titleFly.TextSize = 12
             titleFly.Parent = flyGuiV3
             ApplyRainbow(titleFly)
 
-            local speedVal = 50
-            local speedLabel = Instance.new("TextButton")
-            speedLabel.Size = UDim2.new(0.9, 0, 0, 35)
-            speedLabel.Position = UDim2.new(0.05, 0, 0, 35)
-            speedLabel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-            speedLabel.Text = "Tốc độ bay: 50 (Bấm đổi)"
-            speedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-            speedLabel.Font = Enum.Font.SourceSansBold
-            speedLabel.TextSize = 12
-            speedLabel.Parent = flyGuiV3
-            Instance.new("UICorner", speedLabel).CornerRadius = UDim.new(0, 4)
-
-            speedLabel.MouseButton1Click:Connect(function()
-                speedVal = speedVal + 25
-                if speedVal > 150 then speedVal = 25 end
-                speedLabel.Text = "Tốc độ bay: " .. speedVal .. " (Bấm đổi)"
-            end)
-
             local closeFly = Instance.new("TextButton")
-            closeFly.Size = UDim2.new(0.9, 0, 0, 30)
-            closeFly.Position = UDim2.new(0.05, 0, 0, 78)
+            closeFly.Size = UDim2.new(0.9, 0, 0, 35)
+            closeFly.Position = UDim2.new(0.05, 0, 0, 45)
             closeFly.BackgroundColor3 = Color3.fromRGB(100, 30, 30)
-            closeFly.Text = "Tắt Fly"
+            closeFly.Text = "Tắt Bay Nhanh"
             closeFly.TextColor3 = Color3.fromRGB(255, 255, 255)
             closeFly.Font = Enum.Font.SourceSansBold
             closeFly.TextSize = 12
@@ -311,6 +287,7 @@ CreateButton("Cơ Chế Bay (Fly V3 + Safe Hitbox)", function(state)
             end)
 
             task.spawn(function()
+                local bv, bg
                 while flyingActive and state do
                     task.wait()
                     pcall(function()
@@ -319,29 +296,33 @@ CreateButton("Cơ Chế Bay (Fly V3 + Safe Hitbox)", function(state)
                         local hum = char and char:FindFirstChild("Humanoid")
                         if root and hum then
                             hum.PlatformStand = true
-                            root.CFrame = CFrame.new(99999, 99999, 99999)
+                            if not bv then
+                                bv = Instance.new("BodyVelocity")
+                                bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                                bv.Velocity = Vector3.new(0, 0, 0)
+                                bv.Parent = root
+                            end
+                            if not bg then
+                                bg = Instance.new("BodyGyro")
+                                bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+                                bg.CFrame = Workspace.CurrentCamera.CFrame
+                                bg.Parent = root
+                            end
                             
                             local cam = Workspace.CurrentCamera
                             local moveDir = hum.MoveDirection
-                            if moveDir.Magnitude > 0 then
-                                currentPos = currentPos + (cam.CFrame:VectorToWorldSpace(moveDir) * (speedVal * 0.05))
-                            end
+                            bv.Velocity = (cam.CFrame.LookVector * (moveDir.Z * -60)) + (cam.CFrame.RightVector * (moveDir.X * 60)) + Vector3.new(0, (moveDir.Y * 60), 0)
+                            bg.CFrame = cam.CFrame
                             
-                            local fakePart = char:FindFirstChild("FlyModelClone")
-                            if not fakePart then
-                                fakePart = Instance.new("Part")
-                                fakePart.Name = "FlyModelClone"
-                                fakePart.Size = Vector3.new(2, 5, 1)
-                                fakePart.Transparency = 1
-                                fakePart.CanCollide = false
-                                fakePart.Anchored = true
-                                fakePart.Parent = char
-                            end
-                            fakePart.CFrame = currentPos
-                            cam.CameraSubject = fakePart
+                            -- Hitbox đi theo người chơi nhưng luôn lùi/cách an toàn phía dưới 4 studs, cập nhật Lerp mượt mà tránh giật
+                            local targetCF = root.CFrame - Vector3.new(0, 4, 0)
+                            root.CFrame = root.CFrame:Lerp(targetCF, 0.3)
                         end
                     end)
                 end
+                
+                if bv then bv:Destroy() end
+                if bg then bg:Destroy() end
             end)
 
             while state and flyingActive do task.wait(0.1) end
@@ -351,23 +332,11 @@ CreateButton("Cơ Chế Bay (Fly V3 + Safe Hitbox)", function(state)
                 local char = LocalPlayer.Character
                 local root = char and char:FindFirstChild("HumanoidRootPart")
                 local hum = char and char:FindFirstChild("Humanoid")
-                local cam = Workspace.CurrentCamera
-                
-                local fakePart = char and char:FindFirstChild("FlyModelClone")
-                if fakePart then
-                    currentPos = fakePart.CFrame
-                    fakePart:Destroy()
-                end
-                
                 if root then
-                    root.CFrame = currentPos
+                    -- Khi tắt bay, cập nhật hitbox khớp đúng vào tọa độ hiện tại của người chơi
+                    root.CFrame = root.CFrame + Vector3.new(0, 4, 0)
                 end
-                if hum then
-                    hum.PlatformStand = false
-                    if char:FindFirstChild("Humanoid") then
-                        cam.CameraSubject = char.Humanoid
-                    end
-                end
+                if hum then hum.PlatformStand = false end
             end)
         else
             if flyGuiV3 then flyGuiV3:Destroy() end
@@ -375,17 +344,10 @@ CreateButton("Cơ Chế Bay (Fly V3 + Safe Hitbox)", function(state)
                 local char = LocalPlayer.Character
                 local root = char and char:FindFirstChild("HumanoidRootPart")
                 local hum = char and char:FindFirstChild("Humanoid")
-                local cam = Workspace.CurrentCamera
-                
-                local fakePart = char and char:FindFirstChild("FlyModelClone")
-                if fakePart then fakePart:Destroy() end
-                
-                if hum then
-                    hum.PlatformStand = false
-                    if char:FindFirstChild("Humanoid") then
-                        cam.CameraSubject = char.Humanoid
-                    end
+                if root then
+                    root.CFrame = root.CFrame + Vector3.new(0, 4, 0)
                 end
+                if hum then hum.PlatformStand = false end
             end)
         end
     end)
@@ -404,6 +366,44 @@ CreateButton("Nhảy Vô Hạn (Infinite Jump)", function(state)
         end)
     else
         if infJumpConn then infJumpConn:Disconnect() end
+    end
+end)
+
+local SpeedFrame = Instance.new("Frame")
+SpeedFrame.Size = UDim2.new(1, 0, 0, 50)
+SpeedFrame.BackgroundTransparency = 1
+SpeedFrame.Parent = Container
+
+local SpeedLabel = Instance.new("TextLabel")
+SpeedLabel.Size = UDim2.new(1, -10, 0, 20)
+SpeedLabel.Position = UDim2.new(0, 5, 0, 0)
+SpeedLabel.BackgroundTransparency = 1
+SpeedLabel.Text = "Tốc độ di chuyển: 16"
+SpeedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpeedLabel.Font = Enum.Font.SourceSansBold
+SpeedLabel.TextSize = 12
+SpeedLabel.Parent = SpeedFrame
+ApplyRainbow(SpeedLabel)
+
+local SpeedBar = Instance.new("TextBox")
+SpeedBar.Size = UDim2.new(1, -10, 0, 25)
+SpeedBar.Position = UDim2.new(0, 5, 0, 22)
+SpeedBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+SpeedBar.Text = "16"
+SpeedBar.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpeedBar.Font = Enum.Font.SourceSansBold
+SpeedBar.TextSize = 12
+SpeedBar.Parent = SpeedFrame
+Instance.new("UICorner", SpeedBar).CornerRadius = UDim.new(0, 4)
+
+SpeedBar.FocusLost:Connect(function(enterPressed)
+    local val = tonumber(SpeedBar.Text)
+    if val then
+        pcall(function()
+            LocalPlayer.Character.Humanoid.WalkSpeed = val
+            SpeedLabel.Text = "Tốc độ di chuyển: " .. val
+            ShowNotification("[✓] Đã đổi tốc độ thành: " .. val)
+        end)
     end
 end)
 
