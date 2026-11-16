@@ -7,6 +7,7 @@ local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
 local Lighting = game:GetService("Lighting")
 local Stats = game:GetService("Stats")
+local SoundService = game:GetService("SoundService")
 local LocalPlayer = Players.LocalPlayer
 
 if CoreGui:FindFirstChild("RainbowZombieHub") then
@@ -158,7 +159,7 @@ task.spawn(function()
     TweenService:Create(bigText, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {TextTransparency = 1}):Play()
     task.wait(0.8)
     bigText:Destroy()
-    ShowNotif("Zombie Rush Ultimate v6.1 Sẵn Sàng!")
+    ShowNotif("Zombie Rush Ultimate v7.0 Sẵn Sàng!")
 end)
 
 local ToggleBtn = Instance.new("TextButton")
@@ -206,7 +207,7 @@ local Container = Instance.new("ScrollingFrame")
 Container.Size = UDim2.new(1, -10, 1, -50)
 Container.Position = UDim2.new(0, 5, 0, 45)
 Container.BackgroundTransparency = 1
-Container.CanvasSize = UDim2.new(0, 0, 0, 1100)
+Container.CanvasSize = UDim2.new(0, 0, 0, 1150)
 Container.ScrollBarThickness = 3
 Container.Parent = Main
 
@@ -240,7 +241,7 @@ local bgMusic = Instance.new("Sound")
 bgMusic.SoundId = "rbxassetid://1849187313"
 bgMusic.Volume = 1
 bgMusic.Looped = true
-bgMusic.Parent = ScreenGui
+bgMusic.Parent = SoundService
 
 AddBtn("Bật / Tắt Nhạc Nền", function(st)
     if st then bgMusic:Play() else bgMusic:Stop() end
@@ -263,7 +264,7 @@ local Song1Btn = Instance.new("TextButton", MusicFrame)
 Song1Btn.Size = UDim2.new(0.48, 0, 0, 30)
 Song1Btn.Position = UDim2.new(0, 0, 0, 25)
 Song1Btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Song1Btn.Text = "Nhạc Sôi Động 1"
+Song1Btn.Text = "Bài 1 (Sôi Động)"
 Song1Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
 Song1Btn.Font = Enum.Font.SourceSansBold
 Song1Btn.TextSize = 11
@@ -272,14 +273,14 @@ Song1Btn.MouseButton1Click:Connect(function()
     PlayClickSound()
     bgMusic.SoundId = "rbxassetid://1849187313"
     if bgMusic.IsPlaying then bgMusic:Play() end
-    ShowNotif("[♪] Đã chuyển bài 1")
+    ShowNotif("[♪] Đã chọn Bài 1")
 end)
 
 local Song2Btn = Instance.new("TextButton", MusicFrame)
 Song2Btn.Size = UDim2.new(0.48, 0, 0, 30)
 Song2Btn.Position = UDim2.new(0.52, 0, 0, 25)
 Song2Btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Song2Btn.Text = "Nhạc Chill 2"
+Song2Btn.Text = "Bài 2 (Chill)"
 Song2Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
 Song2Btn.Font = Enum.Font.SourceSansBold
 Song2Btn.TextSize = 11
@@ -288,7 +289,7 @@ Song2Btn.MouseButton1Click:Connect(function()
     PlayClickSound()
     bgMusic.SoundId = "rbxassetid://9040375932"
     if bgMusic.IsPlaying then bgMusic:Play() end
-    ShowNotif("[♪] Đã chuyển bài 2")
+    ShowNotif("[♪] Đã chọn Bài 2")
 end)
 local particleActive = false
 local currentParticleId = "rbxassetid://258124463"
@@ -302,10 +303,11 @@ local function UpdateParticleState()
             if particleEmitterObj then particleEmitterObj:Destroy() end
             particleEmitterObj = Instance.new("ParticleEmitter", root)
             particleEmitterObj.Texture = currentParticleId
-            particleEmitterObj.Rate = 15
-            particleEmitterObj.Speed = NumberRange.new(2, 5)
-            particleEmitterObj.Size = NumberSequence.new(0.8, 0)
-            particleEmitterObj.Lifetime = NumberRange.new(1.5, 3)
+            particleEmitterObj.Rate = 20
+            particleEmitterObj.Speed = NumberRange.new(5, 10)
+            particleEmitterObj.Acceleration = Vector3.new(0, -25, 0)
+            particleEmitterObj.Size = NumberSequence.new(1, 0)
+            particleEmitterObj.Lifetime = NumberRange.new(2, 4)
         else
             if particleEmitterObj then particleEmitterObj:Destroy() particleEmitterObj = nil end
         end
@@ -315,7 +317,7 @@ end
 AddBtn("Bật / Tắt Hiệu Ứng Hạt Rơi", function(st)
     particleActive = st
     UpdateParticleState()
-    ShowNotif(st and "[✓] Đã bật hiệu ứng hạt rơi" or "[✗] Đã tắt hiệu ứng hạt rơi")
+    ShowNotif(st and "[✓] Đã bật hiệu ứng hạt rơi từ trên xuống" or "[✗] Đã tắt hiệu ứng hạt rơi")
 end)
 
 LocalPlayer.CharacterAdded:Connect(function()
@@ -382,7 +384,7 @@ AddBtn("Bring Mob (Gom Quái)", function(st)
                             for _, p in ipairs(Players:GetPlayers()) do
                                 if p.Character == v then isP = true end
                             end
-                            if not isP and (hrp.Position - root.Position).Magnitude <= 1500 then
+                            if not isP and (hrp.Position - root.Position).Magnitude <= 2000 then
                                 hrp.CFrame = targetPos
                                 hrp.Velocity = Vector3.new(0, 0, 0)
                             end
@@ -394,28 +396,7 @@ AddBtn("Bring Mob (Gom Quái)", function(st)
     end)
 end)
 
-AddBtn("Fast Attack Melee (Tự Động Chém)", function(st)
-    task.spawn(function()
-        while st do
-            task.wait(0.01)
-            if not st then break end
-            pcall(function()
-                local char = LocalPlayer.Character
-                if char then
-                    local tool = char:FindFirstChildOfClass("Tool")
-                    if tool then
-                        tool:Activate()
-                        for _, v in ipairs(tool:GetDescendants()) do
-                            if v:IsA("RemoteEvent") then v:FireServer() end
-                        end
-                    end
-                end
-            end)
-        end
-    end)
-end)
-
-AddBtn("Vô Hạn Đạn & Bắn Nhanh", function(st)
+AddBtn("Vô Hạn Đạn & Tốc Độ Bắn Cực Đại", function(st)
     task.spawn(function()
         while st do
             task.wait(0.01)
