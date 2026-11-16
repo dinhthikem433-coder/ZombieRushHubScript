@@ -66,7 +66,7 @@ end
 
 task.spawn(function()
     task.wait(1)
-    ShowNotification("Script Zombie 2.9 được tạo bởi Thành 2k13")
+    ShowNotification("Script Zombie 3.0 (Đã có No-Clip) tạo bởi Thành 2k13")
 end)
 
 local ToggleButton = Instance.new("TextButton")
@@ -84,8 +84,8 @@ toggleCorner.CornerRadius = UDim.new(1, 0)
 toggleCorner.Parent = ToggleButton
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 280, 0, 480)
-MainFrame.Position = UDim2.new(0.5, -140, 0.5, -240)
+MainFrame.Size = UDim2.new(0, 280, 0, 500)
+MainFrame.Position = UDim2.new(0.5, -140, 0.5, -250)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
@@ -133,7 +133,7 @@ local Container = Instance.new("ScrollingFrame")
 Container.Size = UDim2.new(1, -10, 1, -65)
 Container.Position = UDim2.new(0, 5, 0, 55)
 Container.BackgroundTransparency = 1
-Container.CanvasSize = UDim2.new(0, 0, 0, 460)
+Container.CanvasSize = UDim2.new(0, 0, 0, 500)
 Container.ScrollBarThickness = 3
 Container.Parent = MainFrame
 
@@ -262,7 +262,7 @@ CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Xác)", function(state)
             local titleFly = Instance.new("TextLabel")
             titleFly.Size = UDim2.new(1, 0, 0, 30)
             titleFly.BackgroundTransparency = 1
-            titleFly.Text = "FLY GUI V3 (2.9)"
+            titleFly.Text = "FLY GUI V3 (3.0)"
             titleFly.TextColor3 = Color3.fromRGB(255, 255, 255)
             titleFly.Font = Enum.Font.SourceSansBold
             titleFly.TextSize = 12
@@ -311,12 +311,12 @@ CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Xác)", function(state)
                             
                             local cam = Workspace.CurrentCamera
                             local moveDir = hum.MoveDirection
-                            bv.Velocity = (cam.CFrame.LookVector * (moveDir.Z * -60)) + (cam.CFrame.RightVector * (moveDir.X * 60)) + Vector3.new(0, (moveDir.Y * 60), 0)
+                            local speed = hum.WalkSpeed * 1.5
+                            bv.Velocity = (cam.CFrame.LookVector * (moveDir.Z * -speed)) + (cam.CFrame.RightVector * (moveDir.X * speed)) + Vector3.new(0, (moveDir.Y * speed), 0)
                             bg.CFrame = cam.CFrame
                             
-                            -- Hitbox đi theo người chơi nhưng luôn lùi/cách an toàn phía dưới 4 studs, cập nhật Lerp mượt mà tránh giật
                             local targetCF = root.CFrame - Vector3.new(0, 4, 0)
-                            root.CFrame = root.CFrame:Lerp(targetCF, 0.3)
+                            root.CFrame = root.CFrame:Lerp(targetCF, 0.25)
                         end
                     end)
                 end
@@ -333,7 +333,6 @@ CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Xác)", function(state)
                 local root = char and char:FindFirstChild("HumanoidRootPart")
                 local hum = char and char:FindFirstChild("Humanoid")
                 if root then
-                    -- Khi tắt bay, cập nhật hitbox khớp đúng vào tọa độ hiện tại của người chơi
                     root.CFrame = root.CFrame + Vector3.new(0, 4, 0)
                 end
                 if hum then hum.PlatformStand = false end
@@ -351,6 +350,36 @@ CreateButton("Cơ Chế Bay (Fly V3 Chuẩn Xác)", function(state)
             end)
         end
     end)
+end)
+
+CreateButton("No-Clip (Đi Xuyên Tường)", function(state)
+    local noclipConnection
+    if state then
+        noclipConnection = RunService.Stepped:Connect(function()
+            pcall(function()
+                local char = LocalPlayer.Character
+                if char then
+                    for _, part in ipairs(char:GetDescendants()) do
+                        if part:IsA("BasePart") and part.CanCollide then
+                            part.CanCollide = false
+                        end
+                    end
+                end
+            end)
+        end)
+    else
+        if noclipConnection then noclipConnection:Disconnect() end
+        pcall(function()
+            local char = LocalPlayer.Character
+            if char then
+                for _, part in ipairs(char:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = true
+                    end
+                end
+            end
+        end)
+    end
 end)
 
 CreateButton("Nhảy Vô Hạn (Infinite Jump)", function(state)
